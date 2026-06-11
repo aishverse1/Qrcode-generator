@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UPAY — Direct UPI Payments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy: #0A1628;
+    --blue: #1B6FF8;
+    --blue-dark: #1458CC;
+    --blue-light: #4B8EFA;
+    --ice: #E8F1FF;
+    --ice-2: #F4F8FF;
+    --teal: #0D9488;
+    --teal-light: #CCFBF1;
+    --white: #FFFFFF;
+    --grey-1: #F7F9FC;
+    --grey-2: #EEF2F8;
+    --grey-3: #C8D5E8;
+    --grey-4: #8CA0BE;
+    --grey-5: #4A5E78;
+    --text: #0A1628;
+    --text-2: #3D5270;
+    --error: #DC2626;
+    --success: #059669;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(27,111,248,0.10);
+    --shadow-lg: 0 8px 48px rgba(10,22,40,0.14);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--grey-1);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ─── NAV ─────────────────────────────── */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--grey-2);
+    padding: 0 40px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 22px; font-weight: 700; color: var(--navy);
+    text-decoration: none; letter-spacing: -0.5px;
+    cursor: pointer;
+  }
+  .nav-logo-mark {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--blue) 0%, #5B4EFF 100%);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px; font-weight: 700; letter-spacing: -1px;
+  }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-link {
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 14px; font-weight: 500; color: var(--text-2);
+    cursor: pointer; transition: all 0.15s; border: none; background: none;
+    text-decoration: none;
+  }
+  .nav-link:hover { background: var(--ice); color: var(--blue); }
+  .nav-cta {
+    padding: 9px 20px; border-radius: 8px;
+    background: var(--blue); color: white;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; border: none;
+  }
+  .nav-cta:hover { background: var(--blue-dark); transform: translateY(-1px); }
+
+  /* ─── PAGES ───────────────────────────── */
+  .page { display: none; min-height: 100vh; padding-top: 64px; }
+  .page.active { display: block; }
+
+  /* ─── HOME PAGE ───────────────────────── */
+  #page-home {
+    background: linear-gradient(160deg, #F4F8FF 0%, #EEF2F8 60%, #E8F1FF 100%);
+  }
+
+  .hero {
+    max-width: 1120px; margin: 0 auto;
+    padding: 80px 40px 60px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--ice); border: 1px solid var(--blue-light);
+    color: var(--blue); border-radius: 100px;
+    padding: 6px 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity:1; transform: scale(1); }
+    50% { opacity:0.4; transform: scale(0.7); }
+  }
+  .hero h1 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 52px; font-weight: 700; line-height: 1.10;
+    letter-spacing: -2px; color: var(--navy);
+    margin-bottom: 20px;
+  }
+  .hero h1 span { color: var(--blue); }
+  .hero-sub {
+    font-size: 17px; line-height: 1.65; color: var(--text-2);
+    font-weight: 400; margin-bottom: 36px; max-width: 420px;
+  }
+  .hero-actions { display: flex; gap: 12px; align-items: center; }
+  .btn-primary {
+    padding: 14px 28px; border-radius: 10px;
+    background: var(--blue); color: white;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; border: none;
+    box-shadow: 0 4px 16px rgba(27,111,248,0.35);
+  }
+  .btn-primary:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,111,248,0.4); }
+  .btn-ghost {
+    padding: 14px 24px; border-radius: 10px;
+    background: transparent; color: var(--text-2);
+    font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; border: 1.5px solid var(--grey-3);
+  }
+  .btn-ghost:hover { border-color: var(--blue); color: var(--blue); background: var(--ice); }
+
+  .hero-trust { margin-top: 32px; display: flex; align-items: center; gap: 20px; }
+  .trust-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--grey-5); }
+  .trust-icon { width: 16px; height: 16px; color: var(--teal); }
+
+  /* Hero visual */
+  .hero-visual { position: relative; }
+  .hero-card {
+    background: white; border-radius: 20px;
+    padding: 28px; box-shadow: var(--shadow-lg);
+    border: 1px solid var(--grey-2);
+  }
+  .hero-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .merchant-badge {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .merchant-avatar {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, #1B6FF8, #5B4EFF);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 15px;
+  }
+  .merchant-name { font-weight: 600; font-size: 15px; color: var(--navy); }
+  .merchant-vpa { font-size: 12px; color: var(--grey-4); }
+  .verified-badge {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--teal-light); color: var(--teal);
+    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 100px;
+  }
+
+  .hero-qr-area {
+    background: var(--grey-1); border-radius: 14px;
+    padding: 20px; display: flex; gap: 20px; align-items: center;
+  }
+  .mini-qr {
+    width: 90px; height: 90px; flex-shrink: 0;
+    background: white; border-radius: 8px; padding: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: relative; overflow: hidden;
+  }
+  .mini-qr svg { width: 100%; height: 100%; }
+  .qr-info { flex: 1; }
+  .qr-label { font-size: 11px; color: var(--grey-4); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .qr-amount { font-size: 26px; font-weight: 700; color: var(--navy); letter-spacing: -1px; }
+  .qr-ref { font-size: 12px; color: var(--blue); font-weight: 600; font-family: 'DM Sans', sans-serif; margin-top: 4px; }
+
+  .hero-card-footer { margin-top: 16px; display: flex; gap: 10px; }
+  .app-chip {
+    flex: 1; padding: 8px 12px; border-radius: 8px;
+    background: var(--grey-1); border: 1px solid var(--grey-2);
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+    text-align: center; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .app-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--ice); }
+  .app-chip.gpay { color: #4285F4; }
+  .app-chip.phonepe { color: #5F259F; }
+  .app-chip.paytm { color: #00BAF2; }
+  .app-chip.bhim { color: #E36726; }
+
+  /* Float cards */
+  .float-card {
+    position: absolute;
+    background: white; border-radius: 12px;
+    padding: 10px 14px; box-shadow: 0 8px 32px rgba(10,22,40,0.12);
+    border: 1px solid var(--grey-2);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .float-card-1 { top: -20px; right: -20px; }
+  .float-card-2 { bottom: -20px; left: -20px; }
+  .float-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .float-icon.green { background: var(--teal-light); }
+  .float-icon.blue { background: var(--ice); }
+  .float-text { font-size: 13px; }
+  .float-text strong { display: block; font-weight: 600; color: var(--navy); }
+  .float-text span { color: var(--grey-4); font-size: 11px; }
+
+  /* Stats bar */
+  .stats-bar {
+    max-width: 1120px; margin: 0 auto 60px;
+    padding: 0 40px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  }
+  .stat-card {
+    background: white; border-radius: var(--radius);
+    padding: 24px 28px; border: 1px solid var(--grey-2);
+  }
+  .stat-num {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 30px; font-weight: 700; color: var(--navy);
+    letter-spacing: -1px;
+  }
+  .stat-num span { color: var(--blue); }
+  .stat-label { font-size: 13px; color: var(--grey-4); margin-top: 4px; font-weight: 500; }
+
+  /* Features */
+  .features {
+    max-width: 1120px; margin: 0 auto 80px;
+    padding: 0 40px;
+  }
+  .section-eyebrow {
+    font-size: 12px; font-weight: 600; color: var(--blue);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 36px; font-weight: 700; color: var(--navy);
+    letter-spacing: -1px; margin-bottom: 8px;
+  }
+  .section-sub { font-size: 16px; color: var(--text-2); max-width: 480px; line-height: 1.6; }
+  .features-header { margin-bottom: 48px; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature-card {
+    background: white; border-radius: var(--radius);
+    padding: 28px; border: 1px solid var(--grey-2);
+    transition: all 0.2s;
+  }
+  .feature-card:hover { border-color: var(--blue-light); box-shadow: var(--shadow); transform: translateY(-2px); }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--ice); display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px; font-size: 20px;
+  }
+  .feature-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+  .feature-text { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+
+  /* CTA section */
+  .home-cta {
+    max-width: 1120px; margin: 0 auto 80px;
+    padding: 0 40px;
+  }
+  .cta-block {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a2f52 100%);
+    border-radius: 24px; padding: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .cta-beam {
+    position: absolute; top: -40px; right: 120px;
+    width: 200px; height: 400px;
+    background: linear-gradient(180deg, rgba(27,111,248,0.25) 0%, transparent 100%);
+    transform: rotate(25deg); pointer-events: none;
+  }
+  .cta-text h2 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 36px; font-weight: 700; color: white;
+    letter-spacing: -1px; margin-bottom: 12px;
+  }
+  .cta-text p { font-size: 16px; color: rgba(255,255,255,0.65); max-width: 400px; line-height: 1.6; }
+  .cta-actions { display: flex; gap: 12px; flex-shrink: 0; }
+  .btn-white {
+    padding: 14px 28px; border-radius: 10px;
+    background: white; color: var(--navy);
+    font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; border: none;
+  }
+  .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+
+  /* ─── ONBOARDING ──────────────────────── */
+  #page-onboard, #page-business, #page-qr, #page-gmail, #page-ledger {
+    background: var(--ice-2);
+  }
+
+  .ob-wrap {
+    min-height: calc(100vh - 64px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  .ob-card {
+    background: white; border-radius: 20px;
+    padding: 48px; width: 100%; max-width: 480px;
+    box-shadow: var(--shadow-lg); border: 1px solid var(--grey-2);
+  }
+  .ob-step-bar {
+    display: flex; gap: 6px; margin-bottom: 36px;
+  }
+  .ob-step { flex: 1; height: 3px; border-radius: 100px; background: var(--grey-2); }
+  .ob-step.done { background: var(--blue); }
+  .ob-step.active { background: var(--blue-light); }
+
+  .ob-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--ice); display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 20px;
+  }
+  .ob-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 26px; font-weight: 700; color: var(--navy);
+    letter-spacing: -0.5px; margin-bottom: 8px;
+  }
+  .ob-sub { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 32px; }
+
+  .input-group { margin-bottom: 20px; }
+  .input-label {
+    display: block; font-size: 13px; font-weight: 600; color: var(--grey-5);
+    margin-bottom: 7px; letter-spacing: 0.1px;
+  }
+  .input-field {
+    width: 100%; padding: 12px 16px; border-radius: 10px;
+    border: 1.5px solid var(--grey-3); font-size: 15px;
+    font-family: 'Inter', sans-serif; color: var(--navy);
+    outline: none; transition: border 0.15s; background: white;
+  }
+  .input-field:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(27,111,248,0.10); }
+  .input-field::placeholder { color: var(--grey-3); }
+
+  .phone-input { display: flex; gap: 0; }
+  .phone-prefix {
+    padding: 12px 14px; border-radius: 10px 0 0 10px;
+    border: 1.5px solid var(--grey-3); border-right: none;
+    background: var(--grey-1); font-size: 15px; color: var(--text-2);
+    font-weight: 500;
+  }
+  .phone-input .input-field { border-radius: 0 10px 10px 0; }
+
+  .otp-row { display: flex; gap: 10px; width: 100%; }
+  .otp-box {
+    flex: 1; min-width: 0; max-width: 25%; height: 52px; text-align: center;
+    border-radius: 10px; border: 1.5px solid var(--grey-3);
+    font-size: 22px; font-weight: 700; color: var(--navy);
+    font-family: 'DM Sans', sans-serif; outline: none;
+    transition: border 0.15s; box-sizing: border-box;
+  }
+  .otp-box:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(27,111,248,0.10); }
+
+  .btn-full {
+    width: 100%; padding: 14px; border-radius: 10px;
+    background: var(--blue); color: white;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; border: none;
+    box-shadow: 0 4px 16px rgba(27,111,248,0.30);
+    margin-top: 8px;
+  }
+  .btn-full:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .btn-full:disabled { background: var(--grey-3); box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .ob-footer-note {
+    text-align: center; font-size: 12px; color: var(--grey-4);
+    margin-top: 20px; line-height: 1.6;
+  }
+  .ob-footer-note a { color: var(--blue); text-decoration: none; font-weight: 500; }
+
+  /* VPA input with icon */
+  .input-with-icon { position: relative; }
+  .input-with-icon .input-field { padding-right: 44px; }
+  .input-icon {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--grey-3); font-size: 14px;
+  }
+  .input-valid .input-icon { color: var(--teal); }
+  .input-valid .input-field { border-color: var(--teal); }
+
+  .vpa-hint {
+    font-size: 12px; color: var(--grey-4); margin-top: 6px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .vpa-handles {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+  }
+  .vpa-handle {
+    padding: 4px 10px; border-radius: 100px;
+    background: var(--grey-1); border: 1px solid var(--grey-2);
+    font-size: 11px; color: var(--grey-5); cursor: pointer;
+    transition: all 0.15s; font-weight: 500;
+  }
+  .vpa-handle:hover { background: var(--ice); border-color: var(--blue); color: var(--blue); }
+
+  /* ─── VERIFY PAGE ─────────────────────── */
+  .verify-body { display: flex; flex-direction: column; gap: 20px; }
+
+  .verify-method {
+    border: 1.5px solid var(--grey-2); border-radius: 12px;
+    padding: 20px; cursor: pointer; transition: all 0.2s;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .verify-method:hover { border-color: var(--blue-light); background: var(--ice-2); }
+  .verify-method.selected { border-color: var(--blue); background: var(--ice); }
+  .verify-method-icon { font-size: 22px; margin-top: 2px; flex-shrink: 0; }
+  .verify-method-title { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .verify-method-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .verify-method-badge {
+    display: inline-block; margin-top: 6px;
+    background: var(--teal-light); color: var(--teal);
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-check-box {
+    border-radius: 16px; background: var(--navy);
+    padding: 24px; margin-top: 4px;
+    display: none; color: white;
+  }
+  .verify-check-box.show { display: block; }
+  .vcb-header { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; font-weight: 500; }
+  .vcb-amount { font-family: 'DM Sans', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+  .vcb-vpa { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+  .vcb-instruction { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 14px; line-height: 1.5; }
+  .vcb-confirm {
+    margin-top: 16px; padding: 11px 20px; border-radius: 8px;
+    background: var(--teal); color: white; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .vcb-confirm:hover { background: #0a7a70; }
+
+  /* ─── QR PAGE ─────────────────────────── */
+  .qr-wrap {
+    min-height: calc(100vh - 64px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  .qr-layout {
+    display: grid; grid-template-columns: 400px 340px; gap: 24px;
+    width: 100%; max-width: 768px;
+  }
+  .qr-main-card {
+    background: white; border-radius: 20px;
+    padding: 36px 32px; box-shadow: var(--shadow-lg);
+    border: 1px solid var(--grey-2);
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .qr-merchant-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 28px; align-self: stretch;
+  }
+  .qr-avatar {
+    width: 44px; height: 44px; border-radius: 11px;
+    background: linear-gradient(135deg, #1B6FF8, #5B4EFF);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 16px;
+  }
+  .qr-merchant-name { font-size: 16px; font-weight: 700; color: var(--navy); }
+  .qr-merchant-vpa { font-size: 12px; color: var(--grey-4); }
+  .qr-verified { margin-left: auto; display: flex; align-items: center; gap: 4px; color: var(--teal); font-size: 12px; font-weight: 600; }
+
+  /* The QR frame — trust pulse signature */
+  .qr-frame-outer {
+    position: relative; padding: 18px;
+    margin-bottom: 20px;
+  }
+  .qr-frame-border {
+    position: absolute; inset: 0; border-radius: 20px;
+    background: linear-gradient(135deg, var(--blue) 0%, #5B4EFF 50%, var(--teal) 100%);
+    padding: 2px;
+  }
+  .qr-frame-border-inner {
+    width: 100%; height: 100%; border-radius: 18px;
+    background: white;
+  }
+  .qr-pulse-ring {
+    position: absolute; inset: -8px; border-radius: 26px;
+    border: 2px solid var(--blue-light);
+    animation: pulse-ring 2.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .qr-pulse-ring-2 {
+    position: absolute; inset: -16px; border-radius: 32px;
+    border: 1.5px solid rgba(27,111,248,0.2);
+    animation: pulse-ring 2.5s ease-in-out infinite 0.6s;
+    pointer-events: none;
+  }
+  @keyframes pulse-ring {
+    0% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 0.2; transform: scale(1.02); }
+    100% { opacity: 0.8; transform: scale(1); }
+  }
+  .qr-canvas {
+    width: 200px; height: 200px;
+    background: white; border-radius: 10px;
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-canvas svg { width: 200px; height: 200px; }
+  .qr-logo-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 36px; height: 36px; border-radius: 8px;
+    background: white; border: 2px solid var(--grey-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--blue);
+    font-family: 'DM Sans', sans-serif; z-index: 2;
+  }
+
+  .qr-amount-display {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 32px; font-weight: 700; color: var(--navy);
+    letter-spacing: -1px; margin-bottom: 4px;
+  }
+  .qr-ref-display {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--ice); border: 1px solid var(--blue-light);
+    color: var(--blue); padding: 5px 12px; border-radius: 100px;
+    font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.15s; margin-bottom: 20px;
+  }
+  .qr-ref-display:hover { background: var(--blue); color: white; }
+
+  .qr-apps-row { display: flex; gap: 8px; align-self: stretch; }
+  .qr-app-btn {
+    flex: 1; padding: 10px 8px; border-radius: 8px;
+    border: 1.5px solid var(--grey-2); background: white;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; text-align: center; color: var(--text-2);
+  }
+  .qr-app-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--ice); }
+
+  /* Side panel */
+  .qr-side { display: flex; flex-direction: column; gap: 16px; }
+  .qr-side-card {
+    background: white; border-radius: 16px;
+    padding: 20px; border: 1px solid var(--grey-2);
+  }
+  .qr-side-title { font-size: 12px; font-weight: 600; color: var(--grey-4); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .link-display {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--grey-1); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 10px;
+  }
+  .link-text { font-size: 12px; color: var(--text-2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; }
+  .copy-btn {
+    padding: 5px 10px; border-radius: 6px;
+    background: var(--blue); color: white; border: none;
+    font-size: 11px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: var(--blue-dark); }
+
+  .amount-input-row { display: flex; gap: 8px; }
+  .amount-input-row .input-field { border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+  .set-amount-btn {
+    padding: 10px 14px; border-radius: 8px;
+    background: var(--blue); color: white; border: none;
+    font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .set-amount-btn:hover { background: var(--blue-dark); }
+
+  .qr-hint { font-size: 12px; color: var(--grey-4); line-height: 1.5; }
+  .download-btn {
+    width: 100%; padding: 11px; border-radius: 8px;
+    background: var(--ice); border: 1.5px solid var(--blue-light);
+    color: var(--blue); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .download-btn:hover { background: var(--blue); color: white; }
+
+  /* ─── GMAIL CONSENT PAGE ─────────────── */
+  .gmail-card {
+    background: white; border-radius: 20px;
+    padding: 48px; width: 100%; max-width: 520px;
+    box-shadow: var(--shadow-lg); border: 1px solid var(--grey-2);
+  }
+  .gmail-illustration {
+    width: 80px; height: 80px; border-radius: 20px;
+    background: linear-gradient(135deg, #EA4335 0%, #FBBC05 50%, #34A853 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; margin: 0 auto 24px;
+  }
+  .gmail-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 26px; font-weight: 700; color: var(--navy);
+    letter-spacing: -0.5px; text-align: center; margin-bottom: 10px;
+  }
+  .gmail-sub { font-size: 14px; color: var(--text-2); text-align: center; line-height: 1.6; margin-bottom: 32px; }
+
+  .gmail-permissions {
+    background: var(--grey-1); border-radius: 12px;
+    padding: 20px; margin-bottom: 28px; border: 1px solid var(--grey-2);
+  }
+  .gmail-perm-title { font-size: 12px; font-weight: 600; color: var(--grey-5); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .gmail-perm-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+  .gmail-perm-item:last-child { margin-bottom: 0; }
+  .perm-icon { width: 20px; height: 20px; border-radius: 50%; background: var(--teal-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 11px; }
+  .perm-text { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .perm-text strong { color: var(--navy); font-weight: 600; }
+
+  .gmail-not-access {
+    border-radius: 10px; background: #FEF2F2;
+    border: 1px solid #FECACA; padding: 14px 16px;
+    font-size: 13px; color: #991B1B; line-height: 1.5; margin-bottom: 24px;
+  }
+
+  .gmail-actions { display: flex; flex-direction: column; gap: 10px; }
+  .btn-gmail {
+    padding: 13px; border-radius: 10px;
+    background: #EA4335; color: white; border: none;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-gmail:hover { background: #C5221F; transform: translateY(-1px); }
+  .btn-skip {
+    padding: 13px; border-radius: 10px;
+    background: transparent; color: var(--text-2); border: 1.5px solid var(--grey-3);
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: all 0.15s; text-align: center;
+  }
+  .btn-skip:hover { border-color: var(--grey-4); color: var(--text); }
+
+  /* ─── LEDGER PAGE ─────────────────────── */
+  #page-ledger {
+    background: var(--grey-1);
+  }
+  .ledger-layout {
+    max-width: 1120px; margin: 0 auto; padding: 40px;
+    display: grid; grid-template-columns: 280px 1fr; gap: 24px;
+  }
+
+  .ledger-sidebar {
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .sidebar-merchant-card {
+    background: white; border-radius: 16px;
+    padding: 20px; border: 1px solid var(--grey-2);
+    box-shadow: var(--shadow);
+  }
+  .sidebar-avatar {
+    width: 52px; height: 52px; border-radius: 13px;
+    background: linear-gradient(135deg, #1B6FF8, #5B4EFF);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 19px; margin-bottom: 12px;
+  }
+  .sidebar-name { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .sidebar-vpa { font-size: 12px; color: var(--grey-4); margin-bottom: 14px; }
+  .sidebar-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--grey-2); }
+  .sidebar-stat-label { font-size: 12px; color: var(--grey-4); }
+  .sidebar-stat-val { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .sidebar-stat-val.green { color: var(--teal); }
+
+  .gmail-status-card {
+    background: white; border-radius: 16px;
+    padding: 16px; border: 1px solid var(--grey-2);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .gmail-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); animation: pulse-dot 2s ease-in-out infinite; }
+  .gmail-status-text { font-size: 13px; }
+  .gmail-status-text strong { display: block; color: var(--navy); font-weight: 600; font-size: 12px; }
+  .gmail-status-text span { color: var(--grey-4); font-size: 11px; }
+
+  .sidebar-qr-mini {
+    background: white; border-radius: 16px;
+    padding: 16px; border: 1px solid var(--grey-2);
+    text-align: center;
+  }
+  .sidebar-qr-mini svg { width: 120px; height: 120px; display: block; margin: 8px auto; }
+  .sidebar-qr-label { font-size: 11px; color: var(--grey-4); font-weight: 500; margin-bottom: 8px; }
+  .sidebar-qr-link { font-size: 11px; color: var(--blue); font-weight: 600; cursor: pointer; }
+
+  /* Ledger main */
+  .ledger-main {}
+  .ledger-header { margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+  .ledger-header h2 { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 700; color: var(--navy); letter-spacing: -0.5px; }
+  .ledger-actions { display: flex; gap: 8px; }
+  .ledger-btn {
+    padding: 8px 14px; border-radius: 8px;
+    border: 1.5px solid var(--grey-3); background: white;
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .ledger-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--ice); }
+  .ledger-btn.primary { background: var(--blue); color: white; border-color: var(--blue); }
+  .ledger-btn.primary:hover { background: var(--blue-dark); }
+
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-mini { background: white; border-radius: 12px; padding: 16px 18px; border: 1px solid var(--grey-2); }
+  .stat-mini-label { font-size: 11px; color: var(--grey-4); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .stat-mini-val { font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; color: var(--navy); letter-spacing: -0.5px; }
+  .stat-mini-val.teal { color: var(--teal); }
+  .stat-mini-val.blue { color: var(--blue); }
+
+  /* Filters */
+  .ledger-filters { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+  .filter-btn { padding: 6px 14px; border-radius: 100px; border: 1.5px solid var(--grey-2); background: white; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.15s; }
+  .filter-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+  .filter-btn:hover:not(.active) { border-color: var(--blue); color: var(--blue); }
+
+  /* Transaction table */
+  .tx-table {
+    background: white; border-radius: 16px;
+    border: 1px solid var(--grey-2); overflow: hidden;
+  }
+  .tx-table-header {
+    display: grid; grid-template-columns: 80px 1fr 120px 130px 100px 80px;
+    padding: 12px 20px;
+    background: var(--grey-1); border-bottom: 1px solid var(--grey-2);
+  }
+  .tx-col-head { font-size: 11px; font-weight: 600; color: var(--grey-4); text-transform: uppercase; letter-spacing: 0.5px; }
+  .tx-row {
+    display: grid; grid-template-columns: 80px 1fr 120px 130px 100px 80px;
+    padding: 14px 20px; border-bottom: 1px solid var(--grey-2);
+    align-items: center; transition: background 0.1s;
+  }
+  .tx-row:last-child { border-bottom: none; }
+  .tx-row:hover { background: var(--grey-1); }
+  .tx-id { font-size: 11px; font-family: monospace; color: var(--grey-4); }
+  .tx-payer { display: flex; flex-direction: column; }
+  .tx-payer-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+  .tx-payer-vpa { font-size: 11px; color: var(--grey-4); }
+  .tx-ref { font-size: 12px; font-weight: 600; color: var(--blue); font-family: 'DM Sans', sans-serif; }
+  .tx-time { font-size: 12px; color: var(--text-2); }
+  .tx-amount { font-size: 14px; font-weight: 700; color: var(--navy); font-family: 'DM Sans', sans-serif; }
+  .tx-status { }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 100px;
+    font-size: 11px; font-weight: 600;
+  }
+  .status-badge.success { background: var(--teal-light); color: var(--teal); }
+  .status-badge.expired { background: var(--grey-2); color: var(--grey-4); }
+  .status-badge.failed { background: #FEE2E2; color: #DC2626; }
+
+  .live-indicator {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--teal); font-weight: 500; padding: 5px 10px;
+    background: var(--teal-light); border-radius: 100px;
+  }
+
+  /* ─── FOOTER ──────────────────────────── */
+  .footer {
+    background: var(--navy); color: rgba(255,255,255,0.5);
+    padding: 32px 40px; font-size: 13px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo { color: white; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-link { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; transition: color 0.15s; cursor: pointer; }
+  .footer-link:hover { color: white; }
+
+  /* ─── UTILS ───────────────────────────── */
+  .hidden { display: none !important; }
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--navy); color: white;
+    padding: 12px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    box-shadow: var(--shadow-lg); z-index: 999;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s ease; pointer-events: none;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ─── RESPONSIVE ──────────────────────── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px 40px; }
+    .hero-visual { display: none; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 0 24px; }
+    .features { padding: 0 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .home-cta { padding: 0 24px; }
+    .cta-block { flex-direction: column; gap: 28px; padding: 36px; }
+    .qr-layout { grid-template-columns: 1fr; }
+    .ledger-layout { grid-template-columns: 1fr; }
+    .nav { padding: 0 20px; }
+    .hero h1 { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-logo" onclick="showPage('home')">
+    <div class="nav-logo-mark">UP</div>
+    UPAY
+  </a>
+  <div class="nav-links">
+    <button class="nav-link" onclick="showPage('home')">Home</button>
+    <button class="nav-link" id="nav-dashboard" style="display:none" onclick="showPage('ledger')">Dashboard</button>
+    <button class="nav-cta" onclick="showPage('onboard')">Get Started</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- HOME PAGE                              -->
+<!-- ═══════════════════════════════════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-dot"></div>
+        Zero commission · Direct to your account
+      </div>
+      <h1>Collect UPI payments.<br/><span>No middleman.</span></h1>
+      <p class="hero-sub">UPAY routes money straight into your bank account. No percentage cuts, no payment gateway subscriptions — just a QR code and a link.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showPage('onboard')">Create your payment link</button>
+        <button class="btn-ghost" onclick="scrollFeatures()">See how it works</button>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-item">
+          <svg class="trust-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H5.5L8 1Z" fill="currentColor"/></svg>
+          NPCI UPI deep-link spec
+        </div>
+        <div class="trust-item">
+          <svg class="trust-icon" viewBox="0 0 16 16" fill="none"><path d="M8 0L10 6H16L11 9.5L13 15.5L8 12L3 15.5L5 9.5L0 6H6L8 0Z" fill="currentColor" opacity="0"/><path d="M6 8l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="1" y="1" width="14" height="14" rx="7" stroke="currentColor" stroke-width="1.5"/></svg>
+          VPA verified
+        </div>
+        <div class="trust-item">
+          <svg class="trust-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 5V3.5a3 3 0 0 1 6 0V5" stroke="currentColor" stroke-width="1.5"/></svg>
+          End-to-end encrypted
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="float-card float-card-1">
+        <div class="float-icon green">✓</div>
+        <div class="float-text"><strong>₹2,400 received</strong><span>Just now via GPay</span></div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-header">
+          <div class="merchant-badge">
+            <div class="merchant-avatar">RS</div>
+            <div>
+              <div class="merchant-name">Rajesh Store</div>
+              <div class="merchant-vpa">rajesh@okhdfcbank</div>
+            </div>
+          </div>
+          <div class="verified-badge">✓ Verified</div>
+        </div>
+        <div class="hero-qr-area">
+          <div class="mini-qr">
+            <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+              <rect width="21" height="21" fill="white"/>
+              <rect x="0" y="0" width="7" height="7" fill="#1B6FF8" rx="1"/>
+              <rect x="1" y="1" width="5" height="5" fill="white" rx="0.5"/>
+              <rect x="2" y="2" width="3" height="3" fill="#1B6FF8"/>
+              <rect x="14" y="0" width="7" height="7" fill="#1B6FF8" rx="1"/>
+              <rect x="15" y="1" width="5" height="5" fill="white" rx="0.5"/>
+              <rect x="16" y="2" width="3" height="3" fill="#1B6FF8"/>
+              <rect x="0" y="14" width="7" height="7" fill="#1B6FF8" rx="1"/>
+              <rect x="1" y="15" width="5" height="5" fill="white" rx="0.5"/>
+              <rect x="2" y="16" width="3" height="3" fill="#1B6FF8"/>
+              <rect x="9" y="0" width="1" height="1" fill="#1B6FF8"/>
+              <rect x="11" y="0" width="1" height="1" fill="#1B6FF8"/>
+              <rect x="9" y="2" width="2" height="1" fill="#1B6FF8"/>
+              <rect x="9" y="4" width="1" height="2" fill="#1B6FF8"/>
+              <rect x="11" y="3" width="2" height="1" fill="#1B6FF8"/>
+              <rect x="0" y="9" width="1" height="2" fill="#1B6FF8"/>
+              <rect x="2" y="9" width="2" height="1" fill="#1B6FF8"/>
+              <rect x="4" y="10" width="2" height="2" fill="#1B6FF8"/>
+              <rect x="0" y="12" width="3" height="1" fill="#1B6FF8"/>
+              <rect x="9" y="9" width="3" height="2" fill="#1B6FF8"/>
+              <rect x="13" y="9" width="2" height="3" fill="#1B6FF8"/>
+              <rect x="16" y="9" width="2" height="1" fill="#1B6FF8"/>
+              <rect x="19" y="9" width="2" height="2" fill="#1B6FF8"/>
+              <rect x="9" y="12" width="1" height="2" fill="#1B6FF8"/>
+              <rect x="11" y="13" width="3" height="1" fill="#1B6FF8"/>
+              <rect x="15" y="12" width="2" height="2" fill="#1B6FF8"/>
+              <rect x="18" y="13" width="3" height="2" fill="#1B6FF8"/>
+              <rect x="9" y="15" width="2" height="2" fill="#1B6FF8"/>
+              <rect x="12" y="16" width="2" height="2" fill="#1B6FF8"/>
+              <rect x="15" y="17" width="1" height="1" fill="#1B6FF8"/>
+              <rect x="17" y="16" width="1" height="2" fill="#1B6FF8"/>
+              <rect x="19" y="16" width="2" height="1" fill="#1B6FF8"/>
+              <rect x="20" y="18" width="1" height="2" fill="#1B6FF8"/>
+            </svg>
+          </div>
+          <div class="qr-info">
+            <div class="qr-label">Amount due</div>
+            <div class="qr-amount">₹500.00</div>
+            <div class="qr-ref">Ref: UPAY-7X2K</div>
+          </div>
+        </div>
+        <div class="hero-card-footer">
+          <div class="app-chip gpay">GPay</div>
+          <div class="app-chip phonepe">PhonePe</div>
+          <div class="app-chip paytm">Paytm</div>
+          <div class="app-chip bhim">BHIM</div>
+        </div>
+      </div>
+      <div class="float-card float-card-2">
+        <div class="float-icon blue">📊</div>
+        <div class="float-text"><strong>12 transactions</strong><span>Today · ₹18,400</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-num">0<span>%</span></div>
+      <div class="stat-label">Commission on every transaction</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">~<span>2s</span></div>
+      <div class="stat-label">Settlement detection via Gmail IMAP</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">4<span>+</span></div>
+      <div class="stat-label">UPI apps supported natively</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><span>₹1</span></div>
+      <div class="stat-label">VPA verification — zero paid KYC</div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features" id="features-section">
+    <div class="features-header">
+      <div class="section-eyebrow">How it works</div>
+      <div class="section-title">Built for real merchants</div>
+      <p class="section-sub">Three steps from sign-up to collecting your first payment. No technical knowledge required.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📲</div>
+        <div class="feature-title">One QR. Every UPI app.</div>
+        <div class="feature-text">Customers on GPay, PhonePe, Paytm, or BHIM all scan the same code. On mobile, they tap directly into their preferred app. On desktop, they scan.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📬</div>
+        <div class="feature-title">Track your transaction by linking your banking email</div>
+        <div class="feature-text">Link your banking email once. UPAY watches for bank credit alerts via IMAP and marks transactions as settled the moment your bank sends the notification.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-title">Tamper-proof checkout URLs</div>
+        <div class="feature-text">Checkout pages use opaque token URLs. Amounts and merchant data resolve server-side — no way for a customer to edit the bill in their browser.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Live transaction ledger</div>
+        <div class="feature-text">Every payment, timestamp, payer reference, and status in one dashboard. Filter by status, export records, flag disputes — all in real time.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="home-cta">
+    <div class="cta-block">
+      <div class="cta-beam"></div>
+      <div class="cta-text">
+        <h2>Ready to stop paying commissions?</h2>
+        <p>Set up your UPAY account in under 3 minutes. Your first payment link is live before your next customer walks in.</p>
+      </div>
+      <div class="cta-actions">
+        <button class="btn-white" onclick="showPage('onboard')">Create free account</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo">UPAY</div>
+    <div class="footer-links">
+      <span class="footer-link">Privacy</span>
+      <span class="footer-link">Terms</span>
+      <span class="footer-link">Support</span>
+    </div>
+    <div>© 2025 UPAY. Not affiliated with NPCI.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- ONBOARD: PHONE NUMBER                 -->
+<!-- ═══════════════════════════════════════ -->
+<div id="page-onboard" class="page">
+  <div class="ob-wrap">
+    <div class="ob-card">
+      <div class="ob-step-bar">
+        <div class="ob-step active"></div>
+        <div class="ob-step"></div>
+        <div class="ob-step"></div>
+      </div>
+      <div class="ob-icon">📱</div>
+      <div class="ob-title">Enter your number</div>
+      <p class="ob-sub">We'll send a one-time code to verify your identity. No spam, ever.</p>
+
+      <div id="ob-phone-step">
+        <div class="input-group">
+          <label class="input-label">Mobile number</label>
+          <div class="phone-input">
+            <div class="phone-prefix">+91</div>
+            <input class="input-field" id="phone-input" type="tel" maxlength="10" placeholder="98765 43210" oninput="validatePhone()"/>
+          </div>
+        </div>
+        <button class="btn-full" id="send-otp-btn" onclick="sendOTP()" disabled>Send OTP</button>
+        <p class="ob-footer-note">By continuing, you agree to UPAY's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+      </div>
+
+      <div id="ob-otp-step" class="hidden">
+        <p style="font-size:14px;color:var(--text-2);margin-bottom:20px;line-height:1.5;">Code sent to <strong id="otp-phone-display">+91 —</strong>. Enter it below.</p>
+        <div class="input-group">
+          <label class="input-label">Verification code</label>
+          <div class="otp-row">
+            <input class="otp-box" maxlength="1" id="otp1" oninput="otpNav(this,'otp2')"/>
+            <input class="otp-box" maxlength="1" id="otp2" oninput="otpNav(this,'otp3')"/>
+            <input class="otp-box" maxlength="1" id="otp3" oninput="otpNav(this,'otp4')"/>
+            <input class="otp-box" maxlength="1" id="otp4" oninput="otpNav(this,null)"/>
+          </div>
+        </div>
+        <button class="btn-full" onclick="verifyOTP()">Verify & Continue</button>
+        <p class="ob-footer-note">Didn't receive it? <a href="#" onclick="resendOTP()">Resend in <span id="resend-timer">30s</span></a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- ONBOARD: BUSINESS DETAILS             -->
+<!-- ═══════════════════════════════════════ -->
+<div id="page-business" class="page">
+  <div class="ob-wrap">
+    <div class="ob-card" style="max-width:520px;">
+      <div class="ob-step-bar">
+        <div class="ob-step done"></div>
+        <div class="ob-step active"></div>
+        <div class="ob-step"></div>
+      </div>
+      <div class="ob-icon">🏪</div>
+      <div class="ob-title">Your business details</div>
+      <p class="ob-sub">Tell us about your business and where to route payments.</p>
+
+      <div class="input-group">
+        <label class="input-label">Business name</label>
+        <input class="input-field" id="biz-name" type="text" placeholder="e.g. Rajesh Mobile Store" oninput="checkBizForm()"/>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Email address</label>
+        <input class="input-field" id="biz-email" type="email" placeholder="you@gmail.com" oninput="checkBizForm()"/>
+      </div>
+      <div class="input-group">
+        <label class="input-label">UPI ID / VPA</label>
+        <div class="input-with-icon" id="vpa-wrapper">
+          <input class="input-field" id="biz-vpa" type="text" placeholder="yourname@okhdfcbank" oninput="validateVPA()"/>
+          <span class="input-icon" id="vpa-icon">@</span>
+        </div>
+        <p class="vpa-hint">Format: name@bankhandle</p>
+        <div class="vpa-handles">
+          <span class="vpa-handle" onclick="appendHandle('okhdfcbank')">@okhdfcbank</span>
+          <span class="vpa-handle" onclick="appendHandle('okaxis')">@okaxis</span>
+          <span class="vpa-handle" onclick="appendHandle('ybl')">@ybl</span>
+          <span class="vpa-handle" onclick="appendHandle('paytm')">@paytm</span>
+          <span class="vpa-handle" onclick="appendHandle('oksbi')">@oksbi</span>
+          <span class="vpa-handle" onclick="appendHandle('ibl')">@ibl</span>
+        </div>
+      </div>
+
+      <button class="btn-full" id="biz-next-btn" disabled onclick="showCredentialConfirm()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Verification page removed — credentials confirmation is handled via modal on business page -->
+
+<!-- ═══════════════════════════════════════ -->
+<!-- QR GENERATION PAGE                    -->
+<!-- ═══════════════════════════════════════ -->
+<div id="page-qr" class="page">
+  <div class="qr-wrap">
+    <div class="qr-layout">
+
+      <!-- Main QR card -->
+      <div class="qr-main-card">
+        <div class="qr-merchant-header">
+          <div class="qr-avatar" id="qr-avatar-initials">RS</div>
+          <div>
+            <div class="qr-merchant-name" id="qr-merchant-name">Rajesh Store</div>
+            <div class="qr-merchant-vpa" id="qr-merchant-vpa">rajesh@okhdfcbank</div>
+          </div>
+          <div class="qr-verified">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 0L8.8 5.4H14.4L9.8 8.7L11.6 14.1L7 10.8L2.4 14.1L4.2 8.7L-0.4 5.4H5.2L7 0Z" fill="none"/><rect x="0" y="0" width="14" height="14" rx="7" fill="#0D9488"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Verified
+          </div>
+        </div>
+
+        <div class="qr-frame-outer">
+          <div class="qr-frame-border"><div class="qr-frame-border-inner"></div></div>
+          <div class="qr-pulse-ring"></div>
+          <div class="qr-pulse-ring-2"></div>
+          <div class="qr-canvas" id="qr-canvas">
+            <svg id="qr-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <!-- QR generated by JS -->
+            </svg>
+            <div class="qr-logo-center">UP</div>
+          </div>
+        </div>
+
+        <div class="qr-amount-display" id="qr-amount-display">₹0.00</div>
+        <div class="qr-ref-display" id="qr-ref-display" onclick="copyRef()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+          <span id="qr-ref-text">UPAY-XXXX</span>
+        </div>
+
+        <div class="qr-apps-row">
+          <div class="qr-app-btn" style="color:#4285F4">GPay</div>
+          <div class="qr-app-btn" style="color:#5F259F">PhonePe</div>
+          <div class="qr-app-btn" style="color:#00BAF2">Paytm</div>
+          <div class="qr-app-btn" style="color:#E36726">BHIM</div>
+        </div>
+      </div>
+
+      <!-- Side panel -->
+      <div class="qr-side">
+
+        <div class="qr-side-card">
+          <div class="qr-side-title">Set amount</div>
+          <div class="amount-input-row">
+            <input class="input-field" id="amount-in" type="number" placeholder="₹ Amount" style="flex:1;" oninput="updateAmount()"/>
+            <button class="set-amount-btn" onclick="generateRef()">New ref</button>
+          </div>
+          <p class="qr-hint" style="margin-top:10px;">Each transaction gets a unique remark code (e.g. UPAY-7X2K). Ask your customer to include it in the payment note.</p>
+        </div>
+
+        <div class="qr-side-card">
+          <div class="qr-side-title">Shareable payment link</div>
+          <div class="link-display">
+            <span class="link-text" id="pay-link-display">upay.in/pay/pay_tx_—</span>
+            <button class="copy-btn" onclick="copyLink()">Copy</button>
+          </div>
+          <button class="download-btn" onclick="downloadQR()">⬇ Download QR code</button>
+        </div>
+
+
+
+        <button class="btn-primary" style="width:100%;padding:14px;" onclick="showPage('gmail')">
+          Continue to dashboard setup →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- GMAIL CONSENT PAGE                    -->
+<!-- ═══════════════════════════════════════ -->
+<div id="page-gmail" class="page">
+  <div class="ob-wrap">
+    <div class="gmail-card">
+      <div class="ob-step-bar">
+        <div class="ob-step done"></div>
+        <div class="ob-step done"></div>
+        <div class="ob-step active"></div>
+      </div>
+
+      <div class="gmail-illustration">📬</div>
+      <div class="gmail-title">Auto-track your payments</div>
+      <p class="gmail-sub">Link the Gmail account where your bank sends credit alerts. UPAY will detect incoming payments and mark your ledger automatically.</p>
+
+      <div class="gmail-permissions">
+        <div class="gmail-perm-title">What UPAY reads</div>
+        <div class="gmail-perm-item">
+          <div class="perm-icon">✓</div>
+          <div class="perm-text"><strong>Bank credit notification emails only.</strong> We search for messages from your bank containing transaction amounts and reference IDs.</div>
+        </div>
+        <div class="gmail-perm-item">
+          <div class="perm-icon">✓</div>
+          <div class="perm-text"><strong>Read-only access (gmail.readonly scope).</strong> We cannot send emails, delete messages, or access any other mailbox data.</div>
+        </div>
+        <div class="gmail-perm-item">
+          <div class="perm-icon">✓</div>
+          <div class="perm-text"><strong>Tokens stored encrypted.</strong> OAuth tokens are AES-encrypted at rest and never shared with third parties.</div>
+        </div>
+      </div>
+
+      <div class="gmail-not-access">
+        <strong>We never read:</strong> Personal emails, promotional mail, attachments, contacts, or anything unrelated to bank credit notifications.
+      </div>
+
+      <div class="gmail-actions">
+        <button class="btn-gmail" onclick="linkGmail()">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="9" fill="white" fill-opacity="0.2"/><path d="M3 5h12v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5z" fill="none" stroke="white" stroke-width="1.3"/><path d="M3 5l6 5 6-5" stroke="white" stroke-width="1.3"/></svg>
+          Connect Gmail — Auto-track settlements
+        </button>
+        <div class="btn-skip" onclick="skipGmail()">Skip for now</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- LEDGER / DASHBOARD                    -->
+<!-- ═══════════════════════════════════════ -->
+<div id="page-ledger" class="page">
+  <div class="ledger-layout">
+
+    <!-- Sidebar -->
+    <div class="ledger-sidebar">
+      <div class="sidebar-merchant-card">
+        <div class="sidebar-avatar" id="ledger-avatar">RS</div>
+        <div class="sidebar-name" id="ledger-merchant-name">Rajesh Store</div>
+        <div class="sidebar-vpa" id="ledger-vpa">rajesh@okhdfcbank</div>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat-label">Total received</span>
+          <span class="sidebar-stat-val green">₹18,400</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat-label">Transactions</span>
+          <span class="sidebar-stat-val">24</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat-label">Pending</span>
+          <span class="sidebar-stat-val" style="color:var(--blue)">3</span>
+        </div>
+      </div>
+
+      <div class="gmail-status-card" id="gmail-status-card" style="display:none;">
+        <div class="gmail-status-dot"></div>
+        <div class="gmail-status-text">
+          <strong>Gmail IMAP Active</strong>
+          <span>Last checked 8s ago</span>
+        </div>
+      </div>
+
+      <div class="sidebar-qr-mini">
+        <div class="sidebar-qr-label">Your QR code</div>
+        <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+          <rect width="21" height="21" fill="white"/>
+          <rect x="0" y="0" width="7" height="7" fill="#1B6FF8" rx="1"/><rect x="1" y="1" width="5" height="5" fill="white" rx="0.5"/><rect x="2" y="2" width="3" height="3" fill="#1B6FF8"/>
+          <rect x="14" y="0" width="7" height="7" fill="#1B6FF8" rx="1"/><rect x="15" y="1" width="5" height="5" fill="white" rx="0.5"/><rect x="16" y="2" width="3" height="3" fill="#1B6FF8"/>
+          <rect x="0" y="14" width="7" height="7" fill="#1B6FF8" rx="1"/><rect x="1" y="15" width="5" height="5" fill="white" rx="0.5"/><rect x="2" y="16" width="3" height="3" fill="#1B6FF8"/>
+          <rect x="9" y="0" width="1" height="1" fill="#1B6FF8"/><rect x="11" y="0" width="1" height="1" fill="#1B6FF8"/>
+          <rect x="9" y="2" width="2" height="1" fill="#1B6FF8"/><rect x="9" y="4" width="1" height="2" fill="#1B6FF8"/>
+          <rect x="9" y="9" width="3" height="2" fill="#1B6FF8"/><rect x="13" y="9" width="2" height="3" fill="#1B6FF8"/>
+          <rect x="9" y="12" width="1" height="2" fill="#1B6FF8"/><rect x="11" y="13" width="3" height="1" fill="#1B6FF8"/>
+          <rect x="9" y="15" width="2" height="2" fill="#1B6FF8"/><rect x="12" y="16" width="2" height="2" fill="#1B6FF8"/>
+        </svg>
+        <div class="sidebar-qr-link" onclick="showPage('qr')">Edit / regenerate →</div>
+      </div>
+
+      <button class="btn-full" style="margin-top:0;" onclick="newTransaction()">+ New transaction</button>
+    </div>
+
+    <!-- Main ledger -->
+    <div class="ledger-main">
+      <div class="ledger-header">
+        <h2>Transaction ledger</h2>
+        <div class="ledger-actions">
+          <button class="ledger-btn" onclick="exportLedger()">Export CSV</button>
+          <button class="ledger-btn primary" onclick="newTransaction()">New payment</button>
+        </div>
+      </div>
+
+      <div class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="stat-mini">
+          <div class="stat-mini-label">Today</div>
+          <div class="stat-mini-val teal">₹4,200</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-label">This week</div>
+          <div class="stat-mini-val blue">₹18,400</div>
+        </div>
+      </div>
+
+      <div class="ledger-filters">
+        <button class="filter-btn active" onclick="filterTx(this,'all')">All</button>
+        <button class="filter-btn" onclick="filterTx(this,'success')">Settled</button>
+        <button class="filter-btn" onclick="filterTx(this,'expired')">Expired</button>
+        <button class="filter-btn" onclick="filterTx(this,'failed')">Failed</button>
+      </div>
+
+      <div class="tx-table" id="tx-table">
+        <div class="tx-table-header">
+          <div class="tx-col-head">Ref ID</div>
+          <div class="tx-col-head">Payer</div>
+          <div class="tx-col-head">Remark code</div>
+          <div class="tx-col-head">Date & Time</div>
+          <div class="tx-col-head">Amount</div>
+          <div class="tx-col-head">Status</div>
+        </div>
+        <!-- rows injected by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── State ───────────────────────────────
+const state = {
+  phone: '',
+  bizName: 'Rajesh Store',
+  email: '',
+  vpa: 'rajesh@okhdfcbank',
+  amount: 500,
+  refCode: '',
+  gmailLinked: false,
+};
+
+const transactions = [
+  { id:'TX-0029', payer:'Amit Kumar', payerVpa:'amitk@ybl', ref:'UPAY-7X2K', time:'Today, 2:31 PM', amount:'₹500', status:'success' },
+  { id:'TX-0028', payer:'Priya Sharma', payerVpa:'priya@oksbi', ref:'UPAY-3M9Q', time:'Today, 11:14 AM', amount:'₹1,200', status:'success' },
+  { id:'TX-0027', payer:'Rohan Desai', payerVpa:'rohan@paytm', ref:'UPAY-KW4R', time:'Today, 9:05 AM', amount:'₹800', status:'success' },
+  { id:'TX-0026', payer:'—', payerVpa:'—', ref:'UPAY-LX8P', time:'Yesterday, 6:22 PM', amount:'₹350', status:'expired' },
+  { id:'TX-0025', payer:'Neha Joshi', payerVpa:'nehaj@okaxis', ref:'UPAY-9ZT5', time:'Yesterday, 3:45 PM', amount:'₹2,400', status:'success' },
+  { id:'TX-0024', payer:'Suresh Mehta', payerVpa:'suresh@okhdfcbank', ref:'UPAY-B3V7', time:'Yesterday, 1:20 PM', amount:'₹600', status:'failed' },
+  { id:'TX-0023', payer:'Kavita Nair', payerVpa:'kavita@ybl', ref:'UPAY-C5H2', time:'Jun 9, 5:10 PM', amount:'₹1,500', status:'success' },
+  { id:'TX-0022', payer:'Deepak Rao', payerVpa:'deepak@ibl', ref:'UPAY-F7J4', time:'Jun 9, 2:00 PM', amount:'₹900', status:'failed' },
+];
+
+// ─── Page Router ─────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id === 'qr') populateQRPage();
+  if(id === 'ledger') { renderLedger(transactions); document.getElementById('nav-dashboard').style.display='flex'; }
+
+}
+
+function scrollFeatures() {
+  document.getElementById('features-section').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── Phone / OTP ──────────────────────────
+function validatePhone() {
+  const v = document.getElementById('phone-input').value.replace(/\D/g,'');
+  document.getElementById('send-otp-btn').disabled = v.length !== 10;
+}
+
+let resendInterval;
+function sendOTP() {
+  state.phone = document.getElementById('phone-input').value;
+  document.getElementById('ob-phone-step').classList.add('hidden');
+  document.getElementById('ob-otp-step').classList.remove('hidden');
+  document.getElementById('otp-phone-display').textContent = '+91 ' + state.phone;
+  document.getElementById('otp1').focus();
+  startResendTimer();
+}
+
+function startResendTimer() {
+  let t = 30;
+  const el = document.getElementById('resend-timer');
+  clearInterval(resendInterval);
+  resendInterval = setInterval(() => {
+    t--;
+    el.textContent = t + 's';
+    if(t <= 0) { clearInterval(resendInterval); el.textContent = 'Resend'; }
+  }, 1000);
+}
+
+function resendOTP() { startResendTimer(); showToast('New OTP sent'); }
+
+function otpNav(el, nextId) {
+  if(el.value.length === 1 && nextId) {
+    document.getElementById(nextId).focus();
+  }
+}
+
+function verifyOTP() {
+  showPage('business');
+}
+
+// ─── Business Form ────────────────────────
+function validateVPA() {
+  const vpa = document.getElementById('biz-vpa').value.trim();
+  const regex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+  const validHandles = ['okhdfcbank','okaxis','ybl','paytm','barodampay','oksbi','fbl','ibl'];
+  const handle = vpa.split('@')[1];
+  const valid = regex.test(vpa) && validHandles.includes(handle);
+  const wrapper = document.getElementById('vpa-wrapper');
+  const icon = document.getElementById('vpa-icon');
+  if(valid) {
+    wrapper.classList.add('input-valid');
+    icon.textContent = '✓';
+    state.vpa = vpa;
+  } else {
+    wrapper.classList.remove('input-valid');
+    icon.textContent = '@';
+  }
+  checkBizForm();
+}
+
+function appendHandle(h) {
+  const el = document.getElementById('biz-vpa');
+  const cur = el.value;
+  const at = cur.indexOf('@');
+  el.value = (at !== -1 ? cur.slice(0,at) : cur) + '@' + h;
+  validateVPA();
+}
+
+function checkBizForm() {
+  const nm = document.getElementById('biz-name').value.trim();
+  const em = document.getElementById('biz-email').value.trim();
+  const vpa = document.getElementById('biz-vpa').value.trim();
+  const regex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+  const validHandles = ['okhdfcbank','okaxis','ybl','paytm','barodampay','oksbi','fbl','ibl'];
+  const handle = vpa.split('@')[1];
+  const vpaOk = regex.test(vpa) && validHandles.includes(handle);
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+  document.getElementById('biz-next-btn').disabled = !(nm && emailOk && vpaOk);
+  if(nm) state.bizName = nm;
+  if(em) state.email = em;
+}
+
+// ─── Credential Confirmation ──────────────
+function showCredentialConfirm() {
+  const name = state.bizName || 'Your Business';
+  const email = state.email || 'your@email.com';
+  const vpa = state.vpa || 'yourname@handle';
+  const confirmed = confirm(
+    'Please confirm your credentials are correct:\n\n' +
+    'Business Name: ' + name + '\n' +
+    'Email: ' + email + '\n' +
+    'UPI ID: ' + vpa + '\n\n' +
+    'Is this information correct?'
+  );
+  if (confirmed) {
+    showToast('Credentials confirmed ✓');
+    setTimeout(() => showPage('qr'), 500);
+  }
+}
+
+// ─── QR Page ──────────────────────────────
+function generateRef() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let r = 'UPAY-';
+  for(let i=0;i<4;i++) r += chars[Math.floor(Math.random()*chars.length)];
+  state.refCode = r;
+  document.getElementById('qr-ref-text').textContent = r;
+  document.getElementById('qr-ref-display').title = 'Click to copy';
+  updateLinks();
+  drawQR();
+}
+
+function updateAmount() {
+  const v = parseFloat(document.getElementById('amount-in').value) || 0;
+  state.amount = v;
+  document.getElementById('qr-amount-display').textContent = '₹' + v.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  updateLinks();
+  drawQR();
+}
+
+function updateLinks() {
+  const txId = 'pay_tx_' + Math.random().toString(36).slice(2,9);
+  document.getElementById('pay-link-display').textContent = 'upay.in/pay/' + txId;
+}
+
+function populateQRPage() {
+  const initials = (state.bizName||'RS').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('qr-avatar-initials').textContent = initials;
+  document.getElementById('ledger-avatar').textContent = initials;
+  document.getElementById('qr-merchant-name').textContent = state.bizName || 'Your Business';
+  document.getElementById('qr-merchant-vpa').textContent = state.vpa || 'vpa@handle';
+  document.getElementById('ledger-merchant-name').textContent = state.bizName || 'Your Business';
+  document.getElementById('ledger-vpa').textContent = state.vpa || 'vpa@handle';
+  if(!state.refCode) generateRef();
+  const savedAmt = document.getElementById('amount-in').value;
+  if(savedAmt) updateAmount();
+  drawQR();
+}
+
+// Minimal QR pattern renderer (decorative, not scannable — replace with qrcode.js in prod)
+function drawQR() {
+  const svg = document.getElementById('qr-svg');
+  const size = 200; const cells = 21; const cell = size/cells;
+  // Simple deterministic pattern based on ref code
+  const seed = (state.refCode||'UPAY-0000').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const rng = (i) => ((seed * 9301 + i * 49297 + 233995) % 233280) / 233280;
+
+  let rects = '';
+  // Finder patterns (corners)
+  const fp = (x,y) => {
+    const ox = x*cell, oy = y*cell;
+    return `<rect x="${ox}" y="${oy}" width="${7*cell}" height="${7*cell}" fill="#1B6FF8" rx="4"/>
+    <rect x="${ox+cell}" y="${oy+cell}" width="${5*cell}" height="${5*cell}" fill="white" rx="2.5"/>
+    <rect x="${ox+2*cell}" y="${oy+2*cell}" width="${3*cell}" height="${3*cell}" fill="#1B6FF8" rx="1.5"/>`;
+  };
+  rects += fp(0,0) + fp(14,0) + fp(0,14);
+  // Data cells
+  for(let r=0;r<cells;r++) {
+    for(let c=0;c<cells;c++) {
+      if((r<8&&c<8)||(r<8&&c>12)||(r>12&&c<8)) continue;
+      if(rng(r*cells+c) > 0.5) {
+        rects += `<rect x="${c*cell+0.5}" y="${r*cell+0.5}" width="${cell-1}" height="${cell-1}" fill="#1B6FF8" rx="1"/>`;
+      }
+    }
+  }
+  svg.innerHTML = `<rect width="200" height="200" fill="white"/>` + rects;
+}
+
+function copyRef() {
+  navigator.clipboard.writeText(state.refCode).catch(()=>{});
+  showToast('Remark code copied: ' + state.refCode);
+}
+function copyLink() {
+  navigator.clipboard.writeText(document.getElementById('pay-link-display').textContent).catch(()=>{});
+  showToast('Payment link copied');
+}
+
+function downloadQR() { showToast('QR download ready (SVG)'); }
+
+// ─── Gmail ───────────────────────────────
+function linkGmail() {
+  state.gmailLinked = true;
+  showToast('Gmail connected — IMAP watcher active ✓');
+  document.getElementById('gmail-status-card').style.display = 'flex';
+  setTimeout(() => showPage('ledger'), 900);
+}
+function skipGmail() {
+  state.gmailLinked = false;
+  document.getElementById('gmail-status-card').style.display = 'none';
+  showPage('qr');
+}
+
+// ─── Ledger ───────────────────────────────
+function renderLedger(txns) {
+  const tbody = document.getElementById('tx-table');
+  const existing = tbody.querySelectorAll('.tx-row');
+  existing.forEach(r=>r.remove());
+  txns.forEach(tx => {
+    const row = document.createElement('div');
+    row.className = 'tx-row';
+    row.setAttribute('data-status', tx.status);
+    const statusMap = { success:'✓ Settled', expired:'✕ Expired', failed:'✗ Failed' };
+    row.innerHTML = `
+      <div class="tx-id">${tx.id}</div>
+      <div class="tx-payer"><span class="tx-payer-name">${tx.payer}</span><span class="tx-payer-vpa">${tx.payerVpa}</span></div>
+      <div class="tx-ref">${tx.ref}</div>
+      <div class="tx-time">${tx.time}</div>
+      <div class="tx-amount">${tx.amount}</div>
+      <div class="tx-status"><span class="status-badge ${tx.status}">${statusMap[tx.status]}</span></div>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function filterTx(btn, status) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = status==='all' ? transactions : transactions.filter(t=>t.status===status);
+  renderLedger(filtered);
+}
+
+function newTransaction() { showPage('qr'); generateRef(); }
+function exportLedger() { showToast('CSV export ready'); }
+
+// ─── Toast ───────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+// ─── Init ────────────────────────────────
+generateRef();
+</script>
+</body>
+</html>
