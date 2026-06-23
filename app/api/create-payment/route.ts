@@ -1,27 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { generateRemarkCode } from '@/lib/upi'
+import { db } from '@/lib/firebase-admin'
 
 export async function POST(req: NextRequest) {
   try {
-    const { merchantUid, amount } = await req.json()
+    const { vpa, businessName, amount } = await req.json()
 
-    if (!merchantUid) {
-      return NextResponse.json({ error: 'merchantUid is required' }, { status: 400 })
+    if (!vpa || !businessName) {
+      return NextResponse.json({ error: 'vpa and businessName are required' }, { status: 400 })
     }
 
-    const id = `TX-${nanoid(6).toUpperCase()}`
     const remarkCode = generateRemarkCode()
-    const token = nanoid(10)
+    const token = nanoid(8)
 
-    return NextResponse.json({
-      id,
+    await db.collection('payments').doc(token).set({
+      vpa,
+      businessName,
+      amount: amount ?? null,
       remarkCode,
-      token,
-      amount: amount || null,
-      status: 'pending',
+      createdAt: Date.now(),
     })
-  } catch {
+
+    return NextResponse.json({ token })
+  } catch (err) {
+    console.error('create-payment error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

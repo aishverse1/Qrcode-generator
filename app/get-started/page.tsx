@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import QRCard from '@/components/QRCard'
 import { isValidVpa, BANK_HANDLES, generateRemarkCode, buildUpiLink } from '@/lib/upi'
-import { createSignedPaymentToken } from '@/lib/token'
 
 export default function GetStarted() {
   const [businessName, setBusinessName] = useState('')
@@ -32,8 +31,12 @@ export default function GetStarted() {
 
   const handleGenerate = async () => {
     if (!canGenerate) return
-    const paymentData = { vpa, businessName, amount: amount ? parseFloat(amount) : null, remarkCode }
-    const { token } = await createSignedPaymentToken(paymentData)
+    const res = await fetch('/api/create-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vpa, businessName, amount: amount ? parseFloat(amount) : null }),
+    })
+    const { token } = await res.json()
     const link = `${baseUrl}/pay/${token}`
     setShareLink(link)
     setQrReady(true)
