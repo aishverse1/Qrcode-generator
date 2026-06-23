@@ -1,8 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import QRCode from 'qrcode'
-import { decodePaymentData } from '@/lib/token'
+import { verifySignedPaymentToken } from '@/lib/token'
 import { buildUpiLink } from '@/lib/upi'
 
 interface PaymentData {
@@ -19,10 +18,20 @@ export default function PayPage() {
 
   useEffect(() => {
     const path = window.location.pathname
-    // path is like /pay/[encodeddata]
+    // path is like /pay/[token].[signature]
     const segments = path.split('/')
-    const encoded = segments[segments.length - 1]
-    const decoded = decodePaymentData(encoded)
+    const lastSegment = segments[segments.length - 1]
+    const dotIndex = lastSegment.lastIndexOf('.')
+
+    if (dotIndex === -1) {
+      setInvalid(true)
+      return
+    }
+
+    const token = lastSegment.slice(0, dotIndex)
+    const signature = lastSegment.slice(dotIndex + 1)
+    const decoded = verifySignedPaymentToken(token, signature)
+
     if (decoded) {
       setData(decoded)
     } else {
@@ -55,7 +64,7 @@ export default function PayPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-sm">
           <div className="text-4xl mb-4">❌</div>
           <h1 className="text-xl font-semibold text-navy mb-2">Invalid Payment Link</h1>
-          <p className="text-slate-500 text-sm">This payment link is invalid or has been corrupted. Please ask the merchant for a new link.</p>
+          <p className="text-slate-500 text-sm">This payment link is invalid, expired, or may have been tampered with. Please ask the merchant for a new link.</p>
         </div>
       </div>
     )

@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import QRCard from '@/components/QRCard'
 import { isValidVpa, BANK_HANDLES, generateRemarkCode, buildUpiLink } from '@/lib/upi'
-import { encodePaymentData } from '@/lib/token'
+import { createSignedPaymentToken } from '@/lib/token'
 
 const STORAGE_KEY = 'upidirectpay_form'
 
@@ -18,8 +18,8 @@ export default function GetStarted() {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
   const paymentData = { vpa, businessName, amount: amount ? parseFloat(amount) : null, remarkCode }
-  const encodedData = encodePaymentData(paymentData)
-  const shareLink = `${baseUrl}/pay/${encodedData}`
+  const { token, signature } = createSignedPaymentToken(paymentData)
+  const shareLink = `${baseUrl}/pay/${token}.${signature}`
 
   const upiLink = vpa && businessName
     ? buildUpiLink({ vpa, businessName, amount: amount ? parseFloat(amount) : null, remarkCode })

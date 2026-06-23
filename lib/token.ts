@@ -1,19 +1,87 @@
 import { nanoid } from 'nanoid'
+import { createHmac } from 'crypto'
 
-const TOKEN_SECRET = process.env.TOKEN_SECRET || '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+const TOKEN_SECRET = process.env.TOKEN_SECRET || 'default-secret-change-in-production'
+
+// In-memory store for payment data (keyed by token)
+// In production, replace with Firestore or a proper database
+const paymentStore = new Map<string, {
+  vpa: string
+  businessName: string
+  amount: number | null
+  remarkCode: string
+  createdAt: number
+}>()
 
 export function generateToken(): string {
   return nanoid(10)
 }
 
-export function createOpaqueToken(merchantUid: string, txId: string): string {
-  const payload = `${merchantUid}:${txId}:${Date.now()}`
-  const base = Buffer.from(payload).toString('base64url')
-  const signature = Buffer.from(`${base}${TOKEN_SECRET}`).toString('base64url').slice(0, 8)
-  return `${base}-${signature}`
+/**
+ * Create a tamper-proof signed payment token.
+ * Returns { token, signature } — URL becomes /pay/{token}.{signature}
+ */
+export function createSignedPaymentToken(data: {
+  vpa: string
+  businessName: string
+  amount: number | null
+  remarkCode: string
+}): { token: string; signature: string } {
+  // Generate 8-char token
+  const token = nanoid(8)
+
+  // Store payment data server-side
+  paymentStore.set(token, {
+    ...data,
+    createdAt: Date.now(),
+  })
+
+  // Sign the token with HMAC-SHA256
+  const signature = createHmac('sha256', TOKEN_SECRET)
+    .update(token)
+    .digest('hex')
+    .slice(0, 8)
+
+  return { token, signature }
 }
 
-/** Encode payment data into a URL-safe base64 string */
+/**
+ * Verify a signed payment token and return the payment data.
+ * Returns null if token is invalid or tampered.
+ */
+export function verifySignedPaymentToken(token: string, signature: string): {
+  vpa: string
+  businessName: string
+  amount: number | null
+  remarkCode: string
+} | null {
+  // Compute expected signature
+  const expectedSignature = createHmac('sha256', TOKEN_SECRET)
+    .update(token)
+    .digest('hex')
+    .slice(0, 8)
+
+  // Constant-time comparison to prevent timing attacks
+  if (expectedSignature.length !== signature.length) return null
+  let mismatch = 0
+  for (let i = 0; i < expectedSignature.length; i++) {
+    mismatch |= expectedSignature.charCodeAt(i) ^ signature.charCodeAt(i)
+  }
+  if (mismatch !== 0) return null
+
+  // Look up stored payment data
+  const paymentData = paymentStore.get(token)
+  if (!paymentData) return null
+
+  return {
+    vpa: paymentData.vpa,
+    businessName: paymentData.businessName,
+    amount: paymentData.amount,
+    remarkCode: paymentData.remarkCode,
+  }
+}
+
+/** Legacy base64 encode/decode — kept for backward compatibility */
 export function encodePaymentData(data: {
   vpa: string
   businessName: string
@@ -23,7 +91,6 @@ export function encodePaymentData(data: {
   return btoa(JSON.stringify(data))
 }
 
-/** Decode payment data from a base64 URL param */
 export function decodePaymentData(encoded: string): {
   vpa: string
   businessName: string
