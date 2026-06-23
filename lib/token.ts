@@ -1,83 +1,59 @@
 import { nanoid } from 'nanoid'
-import { createHmac } from 'crypto'
+import { db } from './firebase-admin'
 
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'default-secret-change-in-production'
-
-// In-memory store for payment data (keyed by token)
-// In production, replace with Firestore or a proper database
-const paymentStore = new Map<string, {
+/**
+ * Payment data stored in Firestore, keyed by a random 8-char token.
+ * No HMAC needed — data lives server-side, token is just a random lookup key.
+ */
+export interface StoredPaymentData {
   vpa: string
   businessName: string
   amount: number | null
   remarkCode: string
   createdAt: number
-}>()
-
-export function generateToken(): string {
-  return nanoid(10)
 }
 
 /**
- * Create a tamper-proof signed payment token.
- * Returns { token, signature } — URL becomes /pay/{token}.{signature}
+ * Create a payment token and store data in Firestore.
+ * URL becomes /pay/{token} where token is an 8-char random string.
  */
-export function createSignedPaymentToken(data: {
+export async function createSignedPaymentToken(data: {
   vpa: string
   businessName: string
   amount: number | null
   remarkCode: string
-}): { token: string; signature: string } {
-  // Generate 8-char token
+}): Promise<{ token: string }> {
   const token = nanoid(8)
 
-  // Store payment data server-side
-  paymentStore.set(token, {
+  await db.collection('payments').doc(token).set({
     ...data,
     createdAt: Date.now(),
   })
 
-  // Sign the token with HMAC-SHA256
-  const signature = createHmac('sha256', TOKEN_SECRET)
-    .update(token)
-    .digest('hex')
-    .slice(0, 8)
-
-  return { token, signature }
+  return { token }
 }
 
 /**
- * Verify a signed payment token and return the payment data.
- * Returns null if token is invalid or tampered.
+ * Verify a payment token by looking it up in Firestore.
+ * Returns the payment data if found, null otherwise.
  */
-export function verifySignedPaymentToken(token: string, signature: string): {
+export async function verifySignedPaymentToken(token: string): Promise<{
   vpa: string
   businessName: string
   amount: number | null
   remarkCode: string
-} | null {
-  // Compute expected signature
-  const expectedSignature = createHmac('sha256', TOKEN_SECRET)
-    .update(token)
-    .digest('hex')
-    .slice(0, 8)
+} | null> {
+  const doc = await db.collection('payments').doc(token).get()
 
-  // Constant-time comparison to prevent timing attacks
-  if (expectedSignature.length !== signature.length) return null
-  let mismatch = 0
-  for (let i = 0; i < expectedSignature.length; i++) {
-    mismatch |= expectedSignature.charCodeAt(i) ^ signature.charCodeAt(i)
-  }
-  if (mismatch !== 0) return null
+  if (!doc.exists) return null
 
-  // Look up stored payment data
-  const paymentData = paymentStore.get(token)
-  if (!paymentData) return null
+  const data = doc.data() as StoredPaymentData
 
   return {
-    vpa: paymentData.vpa,
-    businessName: paymentData.businessName,
-    amount: paymentData.amount,
-    remarkCode: paymentData.remarkCode,
+    vpa: data.vpa,
+    businessName: data.businessName,
+    amount: data.amount,
+    remarkCode: data.remarkCode,
   }
 }
 

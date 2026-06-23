@@ -18,25 +18,22 @@ export default function PayPage() {
 
   useEffect(() => {
     const path = window.location.pathname
-    // path is like /pay/[token].[signature]
+    // path is like /pay/[token]
     const segments = path.split('/')
-    const lastSegment = segments[segments.length - 1]
-    const dotIndex = lastSegment.lastIndexOf('.')
+    const token = segments[segments.length - 1]
 
-    if (dotIndex === -1) {
+    if (!token) {
       setInvalid(true)
       return
     }
 
-    const token = lastSegment.slice(0, dotIndex)
-    const signature = lastSegment.slice(dotIndex + 1)
-    const decoded = verifySignedPaymentToken(token, signature)
-
-    if (decoded) {
-      setData(decoded)
-    } else {
-      setInvalid(true)
-    }
+    verifySignedPaymentToken(token).then((decoded) => {
+      if (decoded) {
+        setData(decoded)
+      } else {
+        setInvalid(true)
+      }
+    })
   }, [])
 
   const upiLink = data

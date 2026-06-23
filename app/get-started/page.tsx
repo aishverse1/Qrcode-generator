@@ -4,8 +4,6 @@ import QRCard from '@/components/QRCard'
 import { isValidVpa, BANK_HANDLES, generateRemarkCode, buildUpiLink } from '@/lib/upi'
 import { createSignedPaymentToken } from '@/lib/token'
 
-const STORAGE_KEY = 'upidirectpay_form'
-
 export default function GetStarted() {
   const [businessName, setBusinessName] = useState('')
   const [email, setEmail] = useState('')
@@ -15,11 +13,9 @@ export default function GetStarted() {
   const [remarkCode] = useState(generateRemarkCode())
   const [qrReady, setQrReady] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [shareLink, setShareLink] = useState('')
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-  const paymentData = { vpa, businessName, amount: amount ? parseFloat(amount) : null, remarkCode }
-  const { token, signature } = createSignedPaymentToken(paymentData)
-  const shareLink = `${baseUrl}/pay/${token}.${signature}`
 
   const upiLink = vpa && businessName
     ? buildUpiLink({ vpa, businessName, amount: amount ? parseFloat(amount) : null, remarkCode })
@@ -34,8 +30,12 @@ export default function GetStarted() {
     else setVpa(vpa.split('@')[0] + handle)
   }
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!canGenerate) return
+    const paymentData = { vpa, businessName, amount: amount ? parseFloat(amount) : null, remarkCode }
+    const { token } = await createSignedPaymentToken(paymentData)
+    const link = `${baseUrl}/pay/${token}`
+    setShareLink(link)
     setQrReady(true)
   }
 
