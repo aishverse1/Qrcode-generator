@@ -1,79 +1,30 @@
-'use client'
-import { useEffect, useRef, useState } from 'react'
-import QRCode from 'qrcode'
-import { verifySignedPaymentToken } from '@/lib/token'
+import { db } from '@/lib/firebase-admin'
 import { buildUpiLink } from '@/lib/upi'
+import QRCode from 'qrcode'
+import { notFound } from 'next/navigation'
 
-interface PaymentData {
-  vpa: string
-  businessName: string
-  amount: number | null
-  remarkCode: string
+interface PageProps {
+  params: { token: string }
 }
 
-export default function PayPage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [data, setData] = useState<PaymentData | null>(null)
-  const [invalid, setInvalid] = useState(false)
+export default async function PayPage({ params }: PageProps) {
+  const { token } = params
 
-  useEffect(() => {
-    const path = window.location.pathname
-    // path is like /pay/[token]
-    const segments = path.split('/')
-    const token = segments[segments.length - 1]
+  const snap = await db.collection('payments').doc(token).get()
 
-    if (!token) {
-      setInvalid(true)
-      return
-    }
+  if (!snap.exists) return notFound()
 
-    verifySignedPaymentToken(token).then((decoded) => {
-      if (decoded) {
-        setData(decoded)
-      } else {
-        setInvalid(true)
-      }
-    })
-  }, [])
+  const data = snap.data()!
+  const { vpa, businessName, amount, remarkCode } = data
 
-  const upiLink = data
-    ? buildUpiLink({
-        vpa: data.vpa,
-        businessName: data.businessName,
-        amount: data.amount,
-        remarkCode: data.remarkCode,
-      })
-    : ''
+  const upiLink = buildUpiLink({ vpa, businessName, amount: amount ?? undefined, remarkCode })
 
-  useEffect(() => {
-    if (canvasRef.current && upiLink) {
-      QRCode.toCanvas(canvasRef.current, upiLink, {
-        width: 200,
-        margin: 2,
-        color: { dark: '#0F172A', light: '#FFFFFF' },
-      })
-    }
-  }, [upiLink])
-
-  if (invalid) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-sm">
-          <div className="text-4xl mb-4">❌</div>
-          <h1 className="text-xl font-semibold text-navy mb-2">Invalid Payment Link</h1>
-          <p className="text-slate-500 text-sm">This payment link is invalid, expired, or may have been tampered with. Please ask the merchant for a new link.</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!data) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
-        <div className="text-slate-500 text-sm">Loading...</div>
-      </div>
-    )
-  }
+  // Generate QR as base64 data URL server-side
+  const qrDataUrl = await QRCode.toDataURL(upiLink, {
+    width: 240,
+    margin: 2,
+    color: { dark: '#0F172A', light: '#FFFFFF' },
+  })
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col">
@@ -92,26 +43,27 @@ export default function PayPage() {
           {/* Merchant info */}
           <div className="mb-6">
             <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">
-              {data.businessName.charAt(0)}
+              {businessName.charAt(0)}
             </div>
-            <h1 className="text-xl font-semibold text-navy mb-1">{data.businessName}</h1>
-            <p className="text-slate-500 text-sm font-mono">{data.vpa}</p>
+            <h1 className="text-xl font-semibold text-navy mb-1">{businessName}</h1>
+            <p className="text-slate-500 text-sm font-mono">{vpa}</p>
           </div>
 
           {/* QR Code */}
           <div className="flex justify-center mb-6">
             <div className="gradient-border inline-block rounded-xl">
               <div className="bg-white rounded-xl p-4">
-                <canvas ref={canvasRef} className="mx-auto block" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={qrDataUrl} alt="QR Code" className="mx-auto block" width={240} height={240} />
               </div>
             </div>
           </div>
 
           {/* Amount */}
           <div className="mb-6">
-            <p className="text-slate-500 text-sm mb-1">{data.amount ? 'Amount to pay' : 'Open Amount'}</p>
+            <p className="text-slate-500 text-sm mb-1">{amount ? 'Amount to pay' : 'Open Amount'}</p>
             <p className="text-3xl font-bold text-navy">
-              {data.amount ? `₹${data.amount.toFixed(2)}` : 'Pay what you want'}
+              {amount ? `₹${Number(amount).toFixed(2)}` : 'Pay what you want'}
             </p>
           </div>
 
