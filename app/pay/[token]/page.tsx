@@ -1,4 +1,3 @@
-import { db } from '@/lib/firebase-admin'
 import { buildUpiLink } from '@/lib/upi'
 import QRCode from 'qrcode'
 import { notFound } from 'next/navigation'
@@ -10,6 +9,21 @@ interface PageProps {
 export default async function PayPage({ params }: PageProps) {
   const { token } = params
 
+  // Dynamic import so firebase-admin only loads at runtime
+  const { initializeApp, getApps, cert } = await import('firebase-admin/app')
+  const { getFirestore } = await import('firebase-admin/firestore')
+
+  if (getApps().length === 0) {
+    const serviceAccount = process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT
+    if (!serviceAccount) {
+      throw new Error('FIREBASE_ADMIN_SERVICE_ACCOUNT not configured')
+    }
+    initializeApp({
+      credential: cert(JSON.parse(serviceAccount)),
+    })
+  }
+
+  const db = getFirestore()
   const snap = await db.collection('payments').doc(token).get()
 
   if (!snap.exists) return notFound()
