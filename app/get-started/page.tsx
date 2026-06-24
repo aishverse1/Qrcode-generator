@@ -14,8 +14,6 @@ export default function GetStarted() {
   const [copied, setCopied] = useState(false)
   const [shareLink, setShareLink] = useState('')
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-
   const upiLink = vpa && businessName
     ? buildUpiLink({ vpa, businessName, amount: amount ? parseFloat(amount) : null, remarkCode })
     : ''
@@ -29,16 +27,10 @@ export default function GetStarted() {
     else setVpa(vpa.split('@')[0] + handle)
   }
 
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     if (!canGenerate) return
-    const res = await fetch('/api/create-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ vpa, businessName, amount: amount ? parseFloat(amount) : null }),
-    })
-    const { token } = await res.json()
-    const link = `${baseUrl}/pay/${token}`
-    setShareLink(link)
+    // Use direct UPI deep link instead of shareable URL
+    setShareLink(upiLink)
     setQrReady(true)
   }
 
@@ -185,7 +177,7 @@ export default function GetStarted() {
                 />
 
                 <div className="w-full mt-8">
-                  <label className="text-sm font-medium text-slate-700 mb-2 block">Payment Link</label>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">UPI Payment Link</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -220,9 +212,9 @@ export default function GetStarted() {
                 {/* Steps */}
                 <div className="space-y-5 mb-8">
                   {[
-                    { n: '1', title: 'Copy the script', body: 'Click "Copy code" in the block below. It\'s just one line.' },
-                    { n: '2', title: 'Paste before </body>', body: 'Open your website\'s HTML and paste the script just above the closing </body> tag.' },
-                    { n: '3', title: 'Done — a button appears', body: 'A floating "Pay with UPI" button will show on your site. No coding needed.' },
+                    { n: '1', title: 'Copy the link', body: 'Click "Copy code" below to copy the UPI payment link.' },
+                    { n: '2', title: 'Add it anywhere', body: 'Paste the link in your website, app, or messages. Customers tap it to pay instantly.' },
+                    { n: '3', title: 'Done — works everywhere', body: 'The link opens Google Pay, PhonePe, Paytm, or any UPI app on any device.' },
                   ].map(({ n, title, body }) => (
                     <div key={n} className="flex gap-4">
                       <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">{n}</div>
@@ -253,7 +245,7 @@ export default function GetStarted() {
                     </button>
                   </div>
                   <div className="bg-[#1a1a2e] px-5 py-4 overflow-x-auto">
-                    <pre className="text-sm font-mono text-emerald-300 whitespace-pre-wrap break-all leading-relaxed">{`<script src="${baseUrl}/embed.js" data-link="${shareLink}"></script>`}</pre>
+                    <pre className="text-sm font-mono text-emerald-300 whitespace-pre-wrap break-all leading-relaxed">{`<a href="${shareLink}">Pay with UPI</a>`}</pre>
                   </div>
                 </div>
 

@@ -1,48 +1,61 @@
+// lib/firestore.ts
+import { db } from './firebase-admin'
 import { Merchant, Transaction } from '@/types'
 
-// In-memory store for demo (replace with Firestore in production)
-const merchants = new Map<string, Merchant>()
-const transactions = new Map<string, Transaction>()
+// ── Merchants ──────────────────────────────────────────
 
 export async function getMerchant(uid: string): Promise<Merchant | null> {
-  return merchants.get(uid) || null
+  const doc = await db.collection('merchants').doc(uid).get()
+  if (!doc.exists) return null
+  return doc.data() as Merchant
 }
 
 export async function createMerchant(merchant: Merchant): Promise<void> {
-  merchants.set(merchant.uid, merchant)
+  await db.collection('merchants').doc(merchant.uid).set(merchant)
 }
 
 export async function updateMerchant(uid: string, data: Partial<Merchant>): Promise<void> {
-  const existing = merchants.get(uid)
-  if (existing) {
-    merchants.set(uid, { ...existing, ...data })
-  }
+  await db.collection('merchants').doc(uid).update(data)
 }
 
+// ── Transactions ───────────────────────────────────────
+
 export async function getTransaction(remarkCode: string): Promise<Transaction | null> {
-  const all = Array.from(transactions.values())
-  return all.find(tx => tx.remarkCode === remarkCode) || null
+  const snap = await db.collection('transactions')
+    .where('remarkCode', '==', remarkCode)
+    .limit(1)
+    .get()
+  if (snap.empty) return null
+  const doc = snap.docs[0]
+  return { ...doc.data(), id: doc.id } as Transaction
 }
 
 export async function getTransactionsByMerchant(merchantUid: string): Promise<Transaction[]> {
-  const all = Array.from(transactions.values())
-  return all
-    .filter(tx => tx.merchantUid === merchantUid)
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+  const snap = await db.collection('transactions')
+    .where('merchantUid', '==', merchantUid)
+    .orderBy('createdAt', 'desc')
+    .get()
+  return snap.docs.map(doc => ({ ...doc.data(), id: doc.id }) as Transaction)
 }
 
 export async function createTransaction(tx: Transaction): Promise<void> {
-  transactions.set(tx.id, tx)
+  // Store createdAt as Firestore Timestamp for orderBy to work
+  await db.collection('transactions').doc(tx.id).set({
+    ...tx,
+    createdAt: tx.createdAt instanceof Date ? tx.createdAt : new Date(tx.createdAt),
+  })
 }
 
 export async function updateTransaction(id: string, data: Partial<Transaction>): Promise<void> {
-  const existing = transactions.get(id)
-  if (existing) {
-    transactions.set(id, { ...existing, ...data })
-  }
+  await db.collection('transactions').doc(id).update(data)
 }
 
 export async function getTransactionByToken(token: string): Promise<Transaction | null> {
-  const all = Array.from(transactions.values())
-  return all.find(tx => tx.token === token) || null
+  const snap = await db.collection('transactions')
+    .where('token', '==', token)
+    .limit(1)
+    .get()
+  if (snap.empty) return null
+  const doc = snap.docs[0]
+  return { ...doc.data(), id: doc.id } as Transaction
 }
