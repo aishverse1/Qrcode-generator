@@ -24,19 +24,24 @@ const CSS = `
     pointer-events: none;
     z-index: 9999;
     transform: translate(100%, 100%) skewX(-45deg);
-    transition: transform 0.85s cubic-bezier(0.645, 0.045, 0.355, 1);
   }
-  .ribbon.go { transform: translate(-100%, -100%) skewX(-45deg); }
+  @keyframes ribbonSweep {
+    0% { transform: translate(100%, 100%) skewX(-45deg); }
+    100% { transform: translate(-100%, -100%) skewX(-45deg); }
+  }
+  .ribbon.go {
+    animation: ribbonSweep 0.85s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+  }
 
   .ribbon-1 { background: #6B3FA0; }
   .ribbon-2 { background: linear-gradient(to left, #7C3AED, #D06090, #3B82F6); }
   .ribbon-3 { background: #F0EAF8; }
   .ribbon-4 { background: #ffffff; }
 
-  .ribbon-1.go { transition-delay: 0.00s; }
-  .ribbon-2.go { transition-delay: 0.09s; }
-  .ribbon-3.go { transition-delay: 0.18s; }
-  .ribbon-4.go { transition-delay: 0.27s; }
+  .ribbon-1.go { animation-delay: 0.00s; }
+  .ribbon-2.go { animation-delay: 0.09s; }
+  .ribbon-3.go { animation-delay: 0.18s; }
+  .ribbon-4.go { animation-delay: 0.27s; }
 
   @keyframes fadeOut { to { opacity: 0; } }
   @keyframes formIn {
@@ -276,7 +281,7 @@ function SuccessView({ data, onReset }: { data: SuccessData; onReset: () => void
 }
 
 /* ── Form Page ───────────────────────────────────────────────── */
-function FormPage() {
+function FormPage({ onFireRibbons }: { onFireRibbons: () => void }) {
   const [step, setStep]         = useState<FormStep>('input')
   const [form, setForm]         = useState({ businessName:'', vpa:'', amount:'' })
   const [successData, setSuccessData] = useState<SuccessData | null>(null)
@@ -329,15 +334,18 @@ function FormPage() {
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Failed'); setStep('confirm'); setLoading(false); return }
 
-      // ✅ Show success step with QR + shareable link — don't navigate away
-      setSuccessData({
-        token: data.token,
-        vpa: form.vpa.trim(),
-        businessName: form.businessName.trim(),
-        amount: form.amount ? parseFloat(form.amount) : null,
-      })
-      setStep('success')
-      setLoading(false)
+      onFireRibbons()
+
+      setTimeout(() => {
+        setSuccessData({
+          token: data.token,
+          vpa: form.vpa.trim(),
+          businessName: form.businessName.trim(),
+          amount: form.amount ? parseFloat(form.amount) : null,
+        })
+        setStep('success')
+        setLoading(false)
+      }, 500)
     } catch {
       setError('Something went wrong.'); setLoading(false)
     }
@@ -617,12 +625,17 @@ function FormPage() {
 /* ── Root ────────────────────────────────────────────────────── */
 export default function Home() {
   const [phase,  setPhase]  = useState<Phase>('landing')
+  const [triggerCount, setTriggerCount] = useState(0)
   const [active, setActive] = useState(false)
 
   function go() {
     setPhase('transitioning')
     setActive(true)
     setTimeout(() => setPhase('form'), 1150)
+  }
+
+  function fireRibbons() {
+    setTriggerCount(c => c + 1)
   }
 
   return (
@@ -632,8 +645,8 @@ export default function Home() {
       {(phase === 'landing' || phase === 'transitioning') && (
         <Landing dimming={phase === 'transitioning'} onStart={go}/>
       )}
-      <Ribbons active={active}/>
-      {phase === 'form' && <FormPage/>}
+      <Ribbons key={triggerCount} active={active}/>
+      {phase === 'form' && <FormPage onFireRibbons={fireRibbons}/>}
     </div>
   )
 }

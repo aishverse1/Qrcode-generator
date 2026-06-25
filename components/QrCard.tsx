@@ -142,14 +142,13 @@ export default function QrCard({ vpa, businessName, amount, remarkCode, embedMod
             </p>
             <div className="grid grid-cols-2 gap-2">
               {upiApps.map(app => (
-                <a
+                <div
                   key={app.name}
-                  href={app.deepLink}
-                  className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 hover:shadow-md hover:border-slate-200 transition"
+                  className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 cursor-default opacity-90"
                 >
                   {appIcons[app.name]}
                   <span className="text-sm font-semibold text-slate-700">{app.name}</span>
-                </a>
+                </div>
               ))}
             </div>
           </div>
