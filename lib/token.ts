@@ -17,10 +17,15 @@ async function getDb() {
   const { initializeApp, getApps, cert } = await import('firebase-admin/app')
   const { getFirestore } = await import('firebase-admin/firestore')
   if (getApps().length === 0) {
-    const { readFileSync } = await import('fs')
-    const path = await import('path')
-    const serviceAccountPath = path.resolve(process.cwd(), 'service-account.json')
-    const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'))
+    let serviceAccount;
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
+    } else {
+      const { readFileSync } = await import('fs')
+      const path = await import('path')
+      const serviceAccountPath = path.resolve(process.cwd(), 'service-account.json')
+      serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'))
+    }
     initializeApp({ credential: cert(serviceAccount) })
   }
   return getFirestore()
