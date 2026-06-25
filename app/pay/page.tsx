@@ -14,7 +14,7 @@ function sanitize(str: string | null | undefined): string {
   return decodeURIComponent(str.replace(/\+/g, ' ')).trim()
 }
 
-function CopyButton({ text, label }: { text: string; label: string }) {
+function CopyButton({ text, label, className }: { text: string; label: string; className?: string }) {
   const [copied, setCopied] = useState(false)
   function copy() {
     navigator.clipboard.writeText(text).then(() => {
@@ -24,16 +24,11 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   }
   return (
     <button onClick={copy}
-      className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
+      className={className || "flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition"}>
       {copied ? (
-        <span className="text-green-600">✓ Copied</span>
+        <span>✓ Copied</span>
       ) : (
-        <>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-          </svg>
-          {label}
-        </>
+        label
       )}
     </button>
   )
@@ -155,78 +150,88 @@ function PayPageInner() {
   }
 
   // ── Desktop: QR code view ─────────────────────────────────
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : ''
+  const upiLink = `upi://pay?pa=${encodeURIComponent(pa || '')}&pn=${encodeURIComponent(pn || 'Merchant')}${am && am > 0 ? `&am=${am.toFixed(2)}` : ''}&cu=INR`
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col">
-      <header className="bg-white border-b border-slate-100">
-        <div className="max-w-lg mx-auto px-6 py-4 flex items-center justify-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-blue-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">U</span>
-          </div>
-          <span className="font-semibold text-slate-900 text-lg tracking-tight">UPIDirectPay.com</span>
-        </div>
-      </header>
+    <div className="min-h-screen bg-white flex flex-col items-center pt-16 font-sans">
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Payment link created!</h1>
+        <p className="text-slate-500 text-sm">Share this link with your customers</p>
+      </div>
 
-      <main className="flex-1 flex items-center justify-center p-6">
-        <div className="flex flex-col lg:flex-row items-center gap-8">
-          {/* Left: QR Code */}
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 text-center">
-            <div className="mb-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-violet-600 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-3 shadow-lg">
-                {pn?.charAt(0).toUpperCase() || 'M'}
-              </div>
-              <h1 className="text-xl font-semibold text-slate-900 mb-1">{pn || 'Merchant'}</h1>
-              <p className="text-slate-400 text-xs">Payment request</p>
+      <div className="flex flex-col md:flex-row items-stretch gap-6 max-w-4xl w-full px-6 mb-8">
+        {/* Left: QR Code Card */}
+        <div className="flex-1 bg-white rounded-2xl shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden flex flex-col">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-[#4F46E5] to-[#8B5CF6] p-5 flex items-center gap-3 text-white">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-xl">
+              {pn?.charAt(0).toUpperCase() || 'M'}
             </div>
-
-            <div className="flex justify-center mb-4">
-              <div className="bg-white rounded-xl p-4">
-                <img
+            <div>
+              <div className="font-semibold text-lg leading-tight">{pn || 'Merchant'}</div>
+              <div className="text-white/80 text-sm">
+                {am && am > 0 ? `₹${am.toFixed(2)} fixed` : 'Open Amount'}
+              </div>
+            </div>
+          </div>
+          {/* QR Area */}
+          <div className="p-8 flex-1 flex items-center justify-center bg-slate-50/50">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+               <img
                   src={`/api/pay?pa=${encodeURIComponent(pa || '')}&pn=${encodeURIComponent(pn || '')}${am ? `&am=${am}` : ''}&format=qr`}
                   alt="Payment QR Code"
                   width={200}
                   height={200}
-                  className="mx-auto block"
+                  className="block"
                 />
-              </div>
             </div>
-
-            <div className="mb-4">
-              <p className="text-slate-500 text-sm mb-1">
-                {am && am > 0 ? 'Amount to pay' : 'Open Amount'}
-              </p>
-              <p className="text-3xl font-bold text-slate-900">
-                {am && am > 0 ? `₹${am.toFixed(2)}` : 'Pay what you want'}
-              </p>
-            </div>
-
-            <div className="bg-slate-50 rounded-xl p-4 mb-4">
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Scan this QR code with any UPI app (Google Pay, PhonePe, Paytm, BHIM) to complete your payment securely.
-              </p>
-            </div>
-
-            <a
-              href={`upi://pay?pa=${encodeURIComponent(pa || '')}&pn=${encodeURIComponent(pn || 'Merchant')}${am && am > 0 ? `&am=${am.toFixed(2)}` : ''}&cu=INR`}
-              className="block w-full bg-violet-600 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-violet-700 transition text-center"
-            >
-              Open in UPI App
-            </a>
-
-            <p className="text-xs text-slate-400 mt-4 font-mono">Ref: UPIDirectPay</p>
           </div>
-
-          {/* Right: Shareable Link */}
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 text-center">
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">Share Payment Link</h2>
-            <p className="text-slate-500 text-sm mb-4">Copy the link below to share this payment request</p>
-            <CopyButton text={typeof window !== 'undefined' ? window.location.href : ''} label="Copy Link" />
+          {/* Footer */}
+          <div className="py-3 px-4 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium bg-white">
+            <svg width="12" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-slate-700">
+              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+            </svg>
+            Scan with GPay · PhonePe · Paytm · BHIM
           </div>
         </div>
-      </main>
 
-      <footer className="text-center py-4 text-slate-400 text-xs">
-        Powered by <span className="font-medium text-violet-600">UPIDirectPay.com</span>
-      </footer>
+        {/* Right: Shareable Link Card */}
+        <div className="flex-1 bg-white rounded-2xl shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 p-6 flex flex-col">
+          <h2 className="text-xs font-bold text-slate-700 tracking-wide mb-4">SHAREABLE LINK</h2>
+          
+          <div className="bg-slate-100/80 rounded-lg px-4 py-3 text-sm text-slate-700 mb-4 truncate border border-slate-200/60">
+            {currentUrl}
+          </div>
+          
+          <CopyButton 
+            text={currentUrl} 
+            label="Copy Link" 
+            className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-medium py-3 rounded-xl mb-6 transition shadow-sm flex items-center justify-center"
+          />
+          
+          <div className="flex gap-2 mb-2">
+            <div className="flex-1 bg-slate-100/80 rounded-lg px-4 py-2 text-sm text-slate-700 truncate flex items-center border border-slate-200/60">
+              {upiLink}
+            </div>
+            <CopyButton 
+              text={upiLink} 
+              label="Copy UPI" 
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap border border-slate-200 flex items-center justify-center"
+            />
+          </div>
+          <p className="text-xs text-slate-500 mt-1">UPI deep link — paste in apps, messages or emails</p>
+        </div>
+      </div>
+
+      {/* Bottom Info Box */}
+      <div className="bg-[#F0FDF4] border border-[#DCFCE7] rounded-2xl p-4 max-w-2xl w-full mx-6 flex gap-3 text-sm text-slate-700 shadow-sm mb-8">
+        <span className="text-xl shrink-0 mt-0.5">💡</span>
+        <p className="leading-relaxed">
+          Share <span className="font-semibold">{currentUrl}</span> with customers.<br/>
+          When they open it on mobile, their UPI app launches automatically.
+        </p>
+      </div>
     </div>
   )
 }
