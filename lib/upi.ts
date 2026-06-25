@@ -1,5 +1,7 @@
 // UPI deep-link builder + VPA validator (NPCI compliant)
 
+export const MOBILE_UA_REGEX = /Android|iPhone|iPod|iPad|Mobile|webOS|BlackBerry|Opera Mini|IEMobile|Kindle/i
+
 export function buildUpiLink(params: {
   vpa: string
   businessName: string
@@ -23,12 +25,33 @@ export function isValidVpa(vpa: string): boolean {
 }
 
 export const BANK_HANDLES = [
+  // Google Pay / PhonePe / Paytm top handles
+  '@oksbi',
   '@okhdfcbank',
   '@okaxis',
-  '@ybl',
+  '@okicici',
+  '@ybl',          // PhonePe / Yes Bank
+  '@ibl',          // PhonePe / IndusInd
+  '@axl',          // PhonePe / Axis
   '@paytm',
-  '@oksbi',
-  '@ibl',
+  '@pthdfc',       // Paytm HDFC
+  '@ptaxis',       // Paytm Axis
+  '@ptsbi',        // Paytm SBI
+  // Major bank handles
+  '@sbi',
+  '@hdfc',
+  '@icici',
+  '@axis',
+  '@kotak',
+  '@upi',          // BHIM
+  '@apl',          // Amazon Pay
+  '@waaxis',       // WhatsApp Pay Axis
+  '@wahdfcbank',   // WhatsApp Pay HDFC
+  '@rbl',
+  '@idbi',
+  '@federal',
+  '@ikwik',        // MobiKwik
+  '@freecharge',
 ]
 
 export function generateRemarkCode(): string {

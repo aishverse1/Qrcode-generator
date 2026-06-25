@@ -1,17 +1,32 @@
 import { nanoid } from 'nanoid'
-import { db } from './firebase-admin'
 
-/**
- * Payment data stored in Firestore, keyed by a random 8-char token.
- * No HMAC needed — data lives server-side, token is just a random lookup key.
- */
+// ── Types ─────────────────────────────────────────────────
+
 export interface StoredPaymentData {
   vpa: string
   businessName: string
   amount: number | null
   remarkCode: string
   createdAt: number
+  merchantUid?: string
 }
+
+// ── Dynamic Firestore helpers ─────────────────────────────
+
+async function getDb() {
+  const { initializeApp, getApps, cert } = await import('firebase-admin/app')
+  const { getFirestore } = await import('firebase-admin/firestore')
+  if (getApps().length === 0) {
+    const { readFileSync } = await import('fs')
+    const path = await import('path')
+    const serviceAccountPath = path.resolve(process.cwd(), 'service-account.json')
+    const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'))
+    initializeApp({ credential: cert(serviceAccount) })
+  }
+  return getFirestore()
+}
+
+// ── Token create / verify ─────────────────────────────────
 
 /**
  * Create a payment token and store data in Firestore.
@@ -22,8 +37,10 @@ export async function createSignedPaymentToken(data: {
   businessName: string
   amount: number | null
   remarkCode: string
+  merchantUid?: string
 }): Promise<{ token: string }> {
-  const token = nanoid(8)
+  const db = await getDb()
+  const token = nanoid(6)
 
   await db.collection('payments').doc(token).set({
     ...data,
@@ -42,7 +59,9 @@ export async function verifySignedPaymentToken(token: string): Promise<{
   businessName: string
   amount: number | null
   remarkCode: string
+  merchantUid?: string
 } | null> {
+  const db = await getDb()
   const doc = await db.collection('payments').doc(token).get()
 
   if (!doc.exists) return null
@@ -54,28 +73,6 @@ export async function verifySignedPaymentToken(token: string): Promise<{
     businessName: data.businessName,
     amount: data.amount,
     remarkCode: data.remarkCode,
-  }
-}
-
-/** Legacy base64 encode/decode — kept for backward compatibility */
-export function encodePaymentData(data: {
-  vpa: string
-  businessName: string
-  amount: number | null
-  remarkCode: string
-}): string {
-  return btoa(JSON.stringify(data))
-}
-
-export function decodePaymentData(encoded: string): {
-  vpa: string
-  businessName: string
-  amount: number | null
-  remarkCode: string
-} | null {
-  try {
-    return JSON.parse(atob(encoded))
-  } catch {
-    return null
+    merchantUid: data.merchantUid,
   }
 }
