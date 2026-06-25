@@ -18,8 +18,8 @@ async function getDb() {
   const { getFirestore } = await import('firebase-admin/firestore')
   if (getApps().length === 0) {
     let serviceAccount;
-    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT) {
+      serviceAccount = JSON.parse((process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT) as string)
     } else {
       const { readFileSync } = await import('fs')
       const path = await import('path')
