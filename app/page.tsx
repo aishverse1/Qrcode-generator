@@ -173,151 +173,104 @@ function SuccessView({ data, onReset }: { data: SuccessData; onReset: () => void
   }
 
   return (
-    <div style={{ width:'100%', maxWidth:380, animation:'successIn .45s cubic-bezier(0.34,1.56,0.64,1) both' }}>
-      {/* Header */}
-      <div style={{ textAlign:'center', marginBottom:22 }}>
-        <div style={{ animation:'pop .5s cubic-bezier(0.34,1.56,0.64,1) both',
-          display:'inline-flex', alignItems:'center', justifyContent:'center',
-          width:56, height:56, borderRadius:16,
-          background:'linear-gradient(135deg,#10B981,#059669)',
-          boxShadow:'0 8px 24px rgba(16,185,129,.35)', marginBottom:12 }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="2.5"
-              strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-        <h1 style={{ fontSize:21, fontWeight:800, color:'#0F172A',
-          letterSpacing:'-.03em', marginBottom:4 }}>
-          Payment link created!
-        </h1>
-        <p style={{ color:'#94A3B8', fontSize:13 }}>
-          Share this link with your customers
-        </p>
+    <div className="w-full max-w-4xl font-sans" style={{ animation:'successIn .45s cubic-bezier(0.34,1.56,0.64,1) both' }}>
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Payment link created!</h1>
+        <p className="text-slate-500 text-sm">Share this link with your customers</p>
       </div>
 
-      {/* QR Code card */}
-      <div style={{ background:'white', border:'1.5px solid #E2E8F0',
-        borderRadius:20, overflow:'hidden', marginBottom:14,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)' }}>
-
-        {/* Merchant strip */}
-        <div style={{ background:'linear-gradient(135deg,#5945FE,#3B82F6)',
-          padding:'14px 18px', display:'flex', alignItems:'center', gap:12 }}>
-          <div style={{ width:38, height:38, background:'rgba(255,255,255,.2)',
-            borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center',
-            flexShrink:0 }}>
-            <span style={{ color:'white', fontWeight:900, fontSize:17 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-8">
+        {/* Left: QR Code Card */}
+        <div className="bg-white rounded-2xl shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden flex flex-col">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-[#4F46E5] to-[#8B5CF6] p-5 flex items-center gap-3 text-white">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-xl">
               {data.businessName.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <div>
-            <p style={{ color:'white', fontWeight:700, fontSize:15,
-              letterSpacing:'-.02em' }}>{data.businessName}</p>
-            <p style={{ color:'rgba(255,255,255,.55)', fontSize:11, marginTop:1 }}>
-              {data.amount ? `₹${data.amount.toFixed(2)} fixed` : 'Open amount'}
-            </p>
-          </div>
-        </div>
-
-        {/* QR */}
-        <div style={{ padding:'20px', display:'flex', justifyContent:'center',
-          background:'#FAFAFA', borderBottom:'1px solid #F1F5F9' }}>
-          {qrUrl ? (
-            <img src={qrUrl} alt="UPI QR Code" width={200} height={200}
-              style={{ borderRadius:12, border:'4px solid white',
-                boxShadow:'0 4px 16px rgba(0,0,0,.1)' }}/>
-          ) : (
-            <div style={{ width:200, height:200, display:'flex',
-              alignItems:'center', justifyContent:'center' }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                style={{ animation:'spin 0.8s linear infinite' }}>
-                <circle cx="12" cy="12" r="10" stroke="#CBD5E1"
-                  strokeWidth="4" opacity=".4"/>
-                <path d="M4 12a8 8 0 018-8" stroke="#6D28D9"
-                  strokeWidth="4" strokeLinecap="round"/>
-              </svg>
             </div>
-          )}
+            <div>
+              <div className="font-semibold text-lg leading-tight">{data.businessName}</div>
+              <div className="text-white/80 text-sm">
+                {data.amount && data.amount > 0 ? `₹${data.amount.toFixed(2)} fixed` : 'Open Amount'}
+              </div>
+            </div>
+          </div>
+          {/* QR Area */}
+          <div className="p-8 flex-1 flex items-center justify-center bg-slate-50/50">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+               {qrUrl ? (
+                 <img
+                    src={qrUrl}
+                    alt="Payment QR Code"
+                    width={200}
+                    height={200}
+                    className="block"
+                  />
+               ) : (
+                 <div className="w-[200px] h-[200px] flex items-center justify-center">
+                    <svg className="w-8 h-8 animate-spin text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
+                       <circle cx="12" cy="12" r="10" className="opacity-25" />
+                       <path d="M4 12a8 8 0 018-8" className="opacity-75" />
+                    </svg>
+                 </div>
+               )}
+            </div>
+          </div>
+          {/* Footer */}
+          <div className="py-3 px-4 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium bg-white">
+            <svg width="12" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-slate-700">
+              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+            </svg>
+            Scan with GPay · PhonePe · Paytm · BHIM
+          </div>
         </div>
 
-        {/* Scan instruction */}
-        <div style={{ padding:'12px 18px', textAlign:'center' }}>
-          <p style={{ fontSize:12, color:'#94A3B8', fontWeight:500 }}>
-            📱 Scan with GPay · PhonePe · Paytm · BHIM
-          </p>
-        </div>
-      </div>
-
-      {/* Shareable link */}
-      <div style={{ marginBottom:10 }}>
-        <p style={{ fontSize:11, fontWeight:700, color:'#374151',
-          letterSpacing:'.06em', textTransform:'uppercase', marginBottom:6 }}>
-          Shareable Link
-        </p>
-        <div style={{ display:'flex', gap:8 }}>
-          <div style={{ flex:1, background:'#F8FAFC', border:'1.5px solid #E2E8F0',
-            borderRadius:12, padding:'11px 14px',
-            fontSize:13, color:'#475569', fontFamily:'monospace',
-            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+        {/* Right: Shareable Link Card */}
+        <div className="bg-white rounded-2xl shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 p-6 flex flex-col">
+          <h2 className="text-xs font-bold text-slate-700 tracking-wide mb-4">SHAREABLE LINK</h2>
+          
+          <div className="bg-slate-100/80 rounded-lg px-4 py-3 text-sm text-slate-700 mb-4 truncate border border-slate-200/60 font-mono min-w-0">
             {shareUrl}
           </div>
-          <button
+          
+          <button 
             onClick={() => copy(shareUrl, setCopied)}
-            style={{ flexShrink:0, padding:'0 18px',
-              background: copied ? '#10B981' : '#5945FE',
-              color:'white', border:'none', borderRadius:12,
-              fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit',
-              transition:'all .2s', whiteSpace:'nowrap' }}>
-            {copied ? '✓ Copied!' : 'Copy Link'}
+            className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-medium py-3 rounded-xl mb-6 transition shadow-sm flex items-center justify-center"
+          >
+            {copied ? '✓ Copied' : 'Copy Link'}
           </button>
-        </div>
-      </div>
-
-      {/* Copy UPI deep link */}
-      <div style={{ marginBottom:16 }}>
-        <div style={{ display:'flex', gap:8 }}>
-          <div style={{ flex:1, background:'#F8FAFC', border:'1.5px solid #E2E8F0',
-            borderRadius:12, padding:'11px 14px',
-            fontSize:12, color:'#94A3B8', fontFamily:'monospace',
-            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-            {upiLink}
+          
+          <div className="flex gap-2 mb-2 w-full">
+            <div className="flex-1 min-w-0 bg-slate-100/80 rounded-lg px-4 py-2 text-sm text-slate-700 truncate flex items-center border border-slate-200/60 font-mono">
+              {upiLink}
+            </div>
+            <button 
+              onClick={() => copy(upiLink, setCopiedQr)}
+              className="shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap border border-slate-200 flex items-center justify-center"
+            >
+              {copiedQr ? '✓' : 'Copy UPI'}
+            </button>
           </div>
-          <button
-            onClick={() => copy(upiLink, setCopiedQr)}
-            style={{ flexShrink:0, padding:'0 14px',
-              background: copiedQr ? '#10B981' : '#F1F5F9',
-              color: copiedQr ? 'white' : '#64748B',
-              border:'1.5px solid #E2E8F0', borderRadius:12,
-              fontSize:12, fontWeight:600, cursor:'pointer', fontFamily:'inherit',
-              transition:'all .2s', whiteSpace:'nowrap' }}>
-            {copiedQr ? '✓' : 'Copy UPI'}
-          </button>
+          <p className="text-xs text-slate-500 mt-1">UPI deep link — paste in apps, messages or emails</p>
         </div>
-        <p style={{ fontSize:11, color:'#CBD5E1', marginTop:5 }}>
-          UPI deep link — paste in apps, messages or emails
-        </p>
       </div>
 
-      {/* Info tip */}
-      <div style={{ background:'#F0FDF4', border:'1px solid #BBF7D0',
-        borderRadius:12, padding:'10px 14px', marginBottom:16,
-        display:'flex', gap:8, alignItems:'flex-start' }}>
-        <span style={{ fontSize:14 }}>💡</span>
-        <p style={{ fontSize:12, color:'#166534', lineHeight:1.5 }}>
-          Share <strong>{shareUrl}</strong> with customers. When they open it on mobile, their UPI app launches automatically.
+      {/* Bottom Info Box */}
+      <div className="bg-[#F0FDF4] border border-[#DCFCE7] rounded-2xl p-4 w-full flex gap-3 text-sm text-slate-700 shadow-sm mb-6">
+        <span className="text-xl shrink-0 mt-0.5">💡</span>
+        <p className="leading-relaxed">
+          Share <span className="font-semibold">{shareUrl}</span> with customers.<br/>
+          When they open it on mobile, their UPI app launches automatically.
         </p>
       </div>
 
       {/* Create another */}
-      <button onClick={onReset}
-        style={{ width:'100%', background:'white', border:'1.5px solid #E2E8F0',
-          borderRadius:14, padding:'13px', fontSize:14, fontWeight:600,
-          color:'#374151', cursor:'pointer', fontFamily:'inherit',
-          transition:'background .15s' }}
-        onMouseEnter={e => e.currentTarget.style.background='#F8FAFC'}
-        onMouseLeave={e => e.currentTarget.style.background='white'}>
-        + Create Another Link
-      </button>
+      <div className="flex justify-center">
+        <button onClick={onReset}
+          className="w-full max-w-xs bg-white border-2 border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+        >
+          + Create Another Link
+        </button>
+      </div>
     </div>
   )
 }
