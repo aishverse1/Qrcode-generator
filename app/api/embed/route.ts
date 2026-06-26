@@ -162,7 +162,7 @@ const EMBED_SCRIPT = `
     var btn = document.createElement('button');
     btn.textContent = '⚡ Pay with UPI';
     btn.style.cssText = [
-      'background:linear-gradient(135deg,#2563EB 0%,#7C3AED 100%)',
+      'background:linear-gradient(135deg,#2563EB 0%,#3B82F6 100%)',
       'color:#fff',
       'border:none',
       'border-radius:14px',

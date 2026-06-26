@@ -2,29 +2,136 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* ── Revolut Design Tokens ────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --navy: #0F172A;
-  --blue-primary: #2563EB;
-  --violet: #5945FE;
-  --violet-dark: #4338CA;
-  --blue: #3B82F6;
+  /* Brand palette */
+  --shark:       #000000;
+  --white:       #FFFFFF;
+  --cornflower:  #6775E8;
+  --cornflower-lighter: #8B97F0;
+  --cornflower-light:   #EBEEFF;
+
+  /* Ink scale on white */
+  --ink-1: #0D0D0D;
+  --ink-2: #4D4D4D;
+  --ink-3: #808080;
+  --ink-4: #B3B3B3;
+
+  /* Cornflower tint surfaces */
+  --surface-cornflower: var(--cornflower-light);
+
+  /* Status badges — semantic */
+  --status-settled-bg: #DCFCE7;
+  --status-settled-ink: #166534;
+  --status-pending-bg: #FEF3C7;
+  --status-pending-ink: #92400E;
+  --status-expired-bg: #F1F5F9;
+  --status-expired-ink: #64748B;
+  --status-failed-bg: #FEE2E2;
+  --status-failed-ink: #991B1B;
+
+  /* Spacing */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  16px;
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Base ─────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Manrope', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: #F0F4FF;
-  color: var(--navy);
+  background: var(--white);
+  color: var(--ink-1);
+  line-height: 1.6;
 }
 
-.gradient-border {
-  background: linear-gradient(135deg, #5945FE 0%, #3B82F6 100%);
-  padding: 2px;
-  border-radius: 1rem;
+/* ── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--white);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cornflower);
+  border-radius: 99px;
 }
 
-.status-settled { background: #DCFCE7; color: #166534; }
-.status-pending { background: #FEF3C7; color: #92400E; }
-.status-expired { background: #F1F5F9; color: #64748B; }
-.status-failed { background: #FEE2E2; color: #991B1B; }
+/* ── Focus ────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--cornflower);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Selection ────────────────────────────────────────────────── */
+::selection {
+  background: var(--cornflower);
+  color: var(--white);
+}
+
+/* ── Pixel Scatter Keyframes ──────────────────────────────────── */
+@keyframes pixelScatter {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--scatter-x), var(--scatter-y)) scale(0.6); opacity: 0; }
+}
+
+@keyframes pixelIris {
+  0%   { clip-path: circle(0% at 50% 50%); }
+  100% { clip-path: circle(150% at 50% 50%); }
+}
+
+@keyframes pixelFadeIn {
+  0%   { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes qrReveal {
+  0%   { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUpFade {
+  0%   { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes chevronDrop {
+  0%   { transform: translateY(-4px); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(6px); opacity: 0; }
+}
+
+@keyframes progressPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

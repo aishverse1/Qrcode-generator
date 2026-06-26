@@ -14,7 +14,34 @@ function sanitize(str: string | null | undefined): string {
   return decodeURIComponent(str.replace(/\+/g, ' ')).trim()
 }
 
-function CopyButton({ text, label, className }: { text: string; label: string; className?: string }) {
+/* ── Icon SVGs ─────────────────────────────────────────────── */
+function IconLink() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+    </svg>
+  )
+}
+
+function IconCheck() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  )
+}
+
+function IconInfo() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 16v-4M12 8h.01"/>
+    </svg>
+  )
+}
+
+function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false)
   function copy() {
     navigator.clipboard.writeText(text).then(() => {
@@ -24,12 +51,21 @@ function CopyButton({ text, label, className }: { text: string; label: string; c
   }
   return (
     <button onClick={copy}
-      className={className || "flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition"}>
-      {copied ? (
-        <span>✓ Copied</span>
-      ) : (
-        label
-      )}
+      style={{
+        background: copied ? 'var(--cornflower)' : '#F5F5F5',
+        color: copied ? 'var(--white)' : 'var(--ink-1)',
+        border: copied ? 'none' : '1.5px solid #E0E0E0',
+        borderRadius: 'var(--radius-sm)',
+        padding: '11px 18px',
+        fontSize: 13, fontWeight: 700,
+        cursor: 'pointer', fontFamily: 'inherit',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={e => { if (!copied) { e.currentTarget.style.background = '#EBEBEB'; e.currentTarget.style.borderColor = '#CCC' } }}
+      onMouseLeave={e => { if (!copied) { e.currentTarget.style.background = '#F5F5F5'; e.currentTarget.style.borderColor = '#E0E0E0' } }}
+    >
+      {copied ? <><IconCheck /> Copied!</> : <><IconLink /> {label}</>}
     </button>
   )
 }
@@ -45,7 +81,6 @@ function PayPageInner() {
 
   const handleMobileRedirect = useCallback(() => {
     if (!pa || !isValidVpa(pa)) return
-
     const name = pn || 'Merchant'
     const encodedName = encodeURIComponent(name)
     const encodedRemark = encodeURIComponent('UPIDirectPay')
@@ -53,12 +88,8 @@ function PayPageInner() {
     if (am && am > 0) {
       upiLink += `&am=${am.toFixed(2)}`
     }
-
     window.location.href = upiLink
-
-    setTimeout(() => {
-      setStatus('desktop')
-    }, 2000)
+    setTimeout(() => { setStatus('desktop') }, 2000)
   }, [pa, pn, am])
 
   useEffect(() => {
@@ -67,13 +98,11 @@ function PayPageInner() {
       setErrorMsg('Missing required parameter: pa (UPI ID)')
       return
     }
-
     if (!isValidVpa(pa)) {
       setStatus('error')
       setErrorMsg(`"${pa}" is not a valid UPI ID`)
       return
     }
-
     const ua = navigator.userAgent
     if (isMobileUA(ua)) {
       setStatus('mobile')
@@ -83,29 +112,51 @@ function PayPageInner() {
     }
   }, [pa, handleMobileRedirect])
 
-  // ── Error state ───────────────────────────────────────────
+  /* ── Error state ── */
   if (status === 'error') {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
-        <header className="bg-white border-b border-slate-100">
-          <div className="max-w-lg mx-auto px-6 py-4 flex items-center justify-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-blue-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">U</span>
+      <div style={{ minHeight: '100vh', background: 'var(--white)', display: 'flex', flexDirection: 'column' }}>
+        <header style={{
+          padding: '18px clamp(24px, 5vw, 48px)',
+          borderBottom: '1px solid rgba(0,0,0,0.07)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, background: 'var(--cornflower)', borderRadius: 8,
+              display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 15 }}>U</span>
             </div>
-            <span className="font-semibold text-slate-900 text-lg tracking-tight">UPIDirectPay.com</span>
+            <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
+              UPIDirectPay
+            </span>
           </div>
         </header>
-        <main className="flex-1 flex flex-col items-center justify-center p-6">
-          <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-8 w-full max-w-sm text-center">
-            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-7 h-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{
+            background: 'var(--white)', borderRadius: 'var(--radius-md)',
+            border: '1.5px solid #FFE0E0',
+            padding: 40, maxWidth: 380, width: '100%', textAlign: 'center',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+          }}>
+            <div style={{
+              width: 52, height: 52, background: '#FFE8E8', borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 18px',
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-slate-900 mb-2">Invalid Payment Request</h1>
-            <p className="text-slate-500 text-sm mb-6">{errorMsg}</p>
-            <Link href="/" className="text-violet-600 text-sm font-medium hover:underline">
-              Go to homepage
+            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink-1)', letterSpacing: '-.03em', marginBottom: 8 }}>
+              Invalid Payment Request
+            </h1>
+            <p style={{ color: 'var(--ink-3)', fontSize: 14, marginBottom: 24 }}>{errorMsg}</p>
+            <Link href="/" style={{
+              color: 'var(--cornflower)', fontSize: 13, fontWeight: 600,
+              textDecoration: 'none',
+            }}>
+              Go to homepage →
             </Link>
           </div>
         </main>
@@ -113,35 +164,73 @@ function PayPageInner() {
     )
   }
 
-  // ── Mobile: redirecting ───────────────────────────────────
+  /* ── Mobile: redirecting ── */
   if (status === 'mobile') {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
-        <header className="bg-white border-b border-slate-100">
-          <div className="max-w-lg mx-auto px-6 py-4 flex items-center justify-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-blue-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">U</span>
+      <div style={{ minHeight: '100vh', background: 'var(--white)', display: 'flex', flexDirection: 'column' }}>
+        <header style={{
+          padding: '18px clamp(24px, 5vw, 48px)',
+          borderBottom: '1px solid rgba(0,0,0,0.07)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, background: 'var(--cornflower)', borderRadius: 8,
+              display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 15 }}>U</span>
             </div>
-            <span className="font-semibold text-slate-900 text-lg tracking-tight">UPIDirectPay.com</span>
+            <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
+              UPIDirectPay
+            </span>
           </div>
         </header>
-        <main className="flex-1 flex flex-col items-center justify-center p-6">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 w-full max-w-sm text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-violet-600 to-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-lg">
-              {pn?.charAt(0).toUpperCase() || 'M'}
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{
+            background: 'var(--white)', borderRadius: 'var(--radius-md)',
+            border: '1px solid rgba(0,0,0,0.07)',
+            padding: 40, maxWidth: 380, width: '100%', textAlign: 'center',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+          }}>
+            <div style={{
+              width: 56, height: 56, background: 'var(--cornflower)', borderRadius: 'var(--radius-md)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 18px', boxShadow: '0 4px 16px rgba(103,117,232,0.3)',
+            }}>
+              <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 26 }}>
+                {pn?.charAt(0).toUpperCase() || 'M'}
+              </span>
             </div>
-            <h1 className="text-xl font-semibold text-slate-900 mb-1">{pn || 'Merchant'}</h1>
-            {am && am > 0 ? (
-              <p className="text-3xl font-bold text-slate-900 mt-2">₹{am.toFixed(2)}</p>
-            ) : (
-              <p className="text-slate-500 mt-2">Open Amount</p>
-            )}
-            <div className="mt-6 flex items-center justify-center gap-2 text-violet-600">
-              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink-1)', letterSpacing: '-.03em', marginBottom: 4 }}>
+              {pn || 'Merchant'}
+            </h1>
+            {am && am > 0
+              ? <p style={{ fontSize: 32, fontWeight: 900, color: 'var(--ink-1)', letterSpacing: '-.04em', margin: '8px 0 24px' }}>₹{am.toFixed(2)}</p>
+              : <p style={{ color: 'var(--ink-3)', margin: '8px 0 24px', fontSize: 14 }}>Open Amount</p>
+            }
+            {/* Progress bar */}
+            <div style={{
+              width: '100%', height: 3, background: '#F0F0F0', borderRadius: 99,
+              overflow: 'hidden', marginBottom: 16,
+            }}>
+              <div style={{
+                height: '100%',
+                background: 'var(--cornflower)',
+                borderRadius: 99,
+                animation: 'progressBar 2s var(--ease-out-expo) forwards',
+              }} />
+            </div>
+            <style>{`
+              @keyframes progressBar {
+                0%   { width: 0%; }
+                100% { width: 100%; }
+              }
+            `}</style>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: 'var(--cornflower)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                style={{ animation: 'spin 0.8s linear infinite' }}>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity=".25"/>
+                <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity=".8"/>
               </svg>
-              <span className="text-sm font-medium">Opening UPI app…</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--cornflower)' }}>Opening your UPI app…</span>
             </div>
           </div>
         </main>
@@ -149,88 +238,141 @@ function PayPageInner() {
     )
   }
 
-  // ── Desktop: QR code view ─────────────────────────────────
+  /* ── Desktop: QR code view ── */
   const currentUrl = typeof window !== 'undefined' ? window.location.href : ''
   const upiLink = `upi://pay?pa=${encodeURIComponent(pa || '')}&pn=${encodeURIComponent(pn || 'Merchant')}${am && am > 0 ? `&am=${am.toFixed(2)}` : ''}&cu=INR`
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center pt-16 font-sans">
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Payment link created!</h1>
-        <p className="text-slate-500 text-sm">Share this link with your customers</p>
+    <div style={{ minHeight: '100vh', background: 'var(--white)', paddingTop: 80, paddingBottom: 80 }}>
+      {/* Header */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+        padding: '18px clamp(24px, 5vw, 48px)',
+        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(0,0,0,0.06)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, background: 'var(--cornflower)', borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 15 }}>U</span>
+          </div>
+          <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
+            UPIDirectPay
+          </span>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-stretch gap-6 max-w-4xl w-full px-6 mb-8">
-        {/* Left: QR Code Card */}
-        <div className="flex-1 bg-white rounded-2xl shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden flex flex-col">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#4F46E5] to-[#8B5CF6] p-5 flex items-center gap-3 text-white">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-xl">
-              {pn?.charAt(0).toUpperCase() || 'M'}
-            </div>
-            <div>
-              <div className="font-semibold text-lg leading-tight">{pn || 'Merchant'}</div>
-              <div className="text-white/80 text-sm">
-                {am && am > 0 ? `₹${am.toFixed(2)} fixed` : 'Open Amount'}
+      {/* Page content */}
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 clamp(16px, 4vw, 32px)' }}>
+
+        {/* Title */}
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <h1 style={{ fontSize: 'clamp(20px, 3vw, 26px)', fontWeight: 800, color: 'var(--ink-1)',
+            letterSpacing: '-.03em', marginBottom: 6 }}>
+            Your payment link is ready
+          </h1>
+          <p style={{ color: 'var(--ink-3)', fontSize: 14 }}>Share this link with your customer</p>
+        </div>
+
+        {/* Cards */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: 16, marginBottom: 24,
+        }}>
+          {/* QR card */}
+          <div style={{
+            background: 'var(--white)', borderRadius: 'var(--radius-md)',
+            border: '1px solid rgba(0,0,0,0.07)',
+            overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+          }}>
+            {/* Cornflower accent strip */}
+            <div style={{ height: 4, background: 'var(--cornflower)' }} />
+            {/* Header */}
+            <div style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 40, height: 40, background: 'var(--cornflower)', borderRadius: 8,
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 18 }}>
+                  {pn?.charAt(0).toUpperCase() || 'M'}
+                </span>
+              </div>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-1)', letterSpacing: '-.01em' }}>
+                  {pn || 'Merchant'}
+                </p>
+                <p style={{ color: 'var(--ink-3)', fontSize: 11 }}>
+                  {am && am > 0 ? `₹${am.toFixed(2)} fixed` : 'Open amount'}
+                </p>
               </div>
             </div>
-          </div>
-          {/* QR Area */}
-          <div className="p-8 flex-1 flex items-center justify-center bg-slate-50/50">
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-               <img
-                  src={`/api/pay?pa=${encodeURIComponent(pa || '')}&pn=${encodeURIComponent(pn || '')}${am ? `&am=${am}` : ''}&format=qr`}
-                  alt="Payment QR Code"
-                  width={200}
-                  height={200}
-                  className="block"
-                />
+            {/* QR */}
+            <div style={{ padding: '16px', display: 'flex', justifyContent: 'center', background: '#FAFAFA' }}>
+              <img
+                src={`/api/pay?pa=${encodeURIComponent(pa || '')}&pn=${encodeURIComponent(pn || '')}${am ? `&am=${am}` : ''}&format=qr`}
+                alt="Payment QR Code"
+                width={200} height={200}
+                style={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.06)' }}
+              />
+            </div>
+            {/* Footer */}
+            <div style={{
+              padding: '10px 18px', borderTop: '1px solid rgba(0,0,0,0.05)',
+              textAlign: 'center', fontSize: 11, color: 'var(--ink-3)', fontWeight: 500,
+            }}>
+              Scan with GPay · PhonePe · Paytm · BHIM
             </div>
           </div>
-          {/* Footer */}
-          <div className="py-3 px-4 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium bg-white">
-            <svg width="12" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-slate-700">
-              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
-            </svg>
-            Scan with GPay · PhonePe · Paytm · BHIM
+
+          {/* Link card */}
+          <div style={{
+            background: 'var(--white)', borderRadius: 'var(--radius-md)',
+            border: '1px solid rgba(0,0,0,0.07)',
+            padding: 24,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+            display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16,
+          }}>
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-3)',
+                textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 6 }}>Shareable link</p>
+              <div style={{
+                background: '#F5F5F5', borderRadius: 6, padding: '11px 14px',
+                fontSize: 12, color: 'var(--ink-1)', fontFamily: 'monospace',
+                wordBreak: 'break-all', lineHeight: 1.5,
+              }}>
+                {currentUrl}
+              </div>
+            </div>
+            <CopyButton text={currentUrl} label="Copy Link" />
+
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-3)',
+                textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 6 }}>UPI deep link</p>
+              <div style={{
+                background: '#F5F5F5', borderRadius: 6, padding: '11px 14px',
+                fontSize: 11, color: 'var(--ink-2)', fontFamily: 'monospace',
+                wordBreak: 'break-all', lineHeight: 1.5,
+              }}>
+                {upiLink}
+              </div>
+            </div>
+            <CopyButton text={upiLink} label="Copy UPI Link" />
           </div>
         </div>
 
-        {/* Right: Shareable Link Card */}
-        <div className="flex-1 bg-white rounded-2xl shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 p-6 flex flex-col">
-          <h2 className="text-xs font-bold text-slate-700 tracking-wide mb-4">SHAREABLE LINK</h2>
-          
-          <div className="bg-slate-100/80 rounded-lg px-4 py-3 text-sm text-slate-700 mb-4 truncate border border-slate-200/60">
-            {currentUrl}
-          </div>
-          
-          <CopyButton 
-            text={currentUrl} 
-            label="Copy Link" 
-            className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white font-medium py-3 rounded-xl mb-6 transition shadow-sm flex items-center justify-center"
-          />
-          
-          <div className="flex gap-2 mb-2">
-            <div className="flex-1 bg-slate-100/80 rounded-lg px-4 py-2 text-sm text-slate-700 truncate flex items-center border border-slate-200/60">
-              {upiLink}
-            </div>
-            <CopyButton 
-              text={upiLink} 
-              label="Copy UPI" 
-              className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap border border-slate-200 flex items-center justify-center"
-            />
-          </div>
-          <p className="text-xs text-slate-500 mt-1">UPI deep link — paste in apps, messages or emails</p>
+        {/* Info box */}
+        <div style={{
+          border: '1.5px solid var(--cornflower)',
+          borderRadius: 'var(--radius-md)', padding: '14px 18px',
+          display: 'flex', gap: 12, alignItems: 'flex-start',
+          background: 'var(--cornflower-light)',
+        }}>
+          <span style={{ color: 'var(--cornflower)', marginTop: 1, flexShrink: 0 }}><IconInfo /></span>
+          <p style={{ color: 'var(--ink-1)', fontSize: 13, lineHeight: 1.6 }}>
+            Share <strong style={{ fontWeight: 700 }}>{currentUrl}</strong> with your customer.
+            When they open it on mobile, their UPI app launches automatically.
+          </p>
         </div>
-      </div>
-
-      {/* Bottom Info Box */}
-      <div className="bg-[#F0FDF4] border border-[#DCFCE7] rounded-2xl p-4 max-w-2xl w-full mx-6 flex gap-3 text-sm text-slate-700 shadow-sm mb-8">
-        <span className="text-xl shrink-0 mt-0.5">💡</span>
-        <p className="leading-relaxed">
-          Share <span className="font-semibold">{currentUrl}</span> with customers.<br/>
-          When they open it on mobile, their UPI app launches automatically.
-        </p>
       </div>
     </div>
   )
@@ -239,10 +381,11 @@ function PayPageInner() {
 export default function PayPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <svg className="w-8 h-8 animate-spin text-violet-600" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      <div style={{ minHeight: '100vh', background: 'var(--white)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+          style={{ animation: 'spin 0.8s linear infinite', color: 'var(--cornflower)' }}>
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity=".25"/>
+          <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity=".8"/>
         </svg>
       </div>
     }>
