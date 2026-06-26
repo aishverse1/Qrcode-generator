@@ -428,40 +428,42 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
   }
 
   return (
-    <div style={{ padding: '36px 32px 30px' }}>
+    <div style={{ padding: '0px 10px' }}>
       {/* Logo grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,8px)', gap: 2, marginBottom: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,8px)', gap: 2, marginBottom: 24, justifyContent: 'center' }}>
         {[0,1,2,3,4,5,6,7,8].map(i => (
           <div key={i} style={{
             width: 8, height: 8, borderRadius: 1,
-            background: [0,2,4,6,8].includes(i) ? 'var(--cornflower)' : 'rgba(0,0,0,0.07)',
+            background: [0,2,4,6,8].includes(i) ? '#fff' : 'rgba(255,255,255,0.2)',
           }} />
         ))}
       </div>
 
-      <h1 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: 22,
-        letterSpacing: '-.01em', color: 'var(--ink-1)', marginBottom: 6 }}>
-        Your payment link is ready
-      </h1>
-      <p style={{ fontSize: 13, color: 'var(--ink-3)', marginBottom: 22 }}>
-        Share it with your customer — they pay directly to your bank.
-      </p>
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <h1 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: 26,
+          letterSpacing: '-.01em', color: '#fff', marginBottom: 8 }}>
+          Your payment link is ready
+        </h1>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)' }}>
+          Share it with your customer — they pay directly to your bank.
+        </p>
+      </div>
 
       {/* Cards grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 32 }}>
         {/* QR card */}
         <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden',
           border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-          <div style={{ background: 'var(--cornflower)', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.2)', borderRadius: 7,
+          <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+            <div style={{ width: 32, height: 32, background: 'var(--cornflower)', borderRadius: 7,
               display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ color: '#fff', fontWeight: 900, fontSize: 14 }}>
                 {data.businessName.charAt(0).toUpperCase()}
               </span>
             </div>
             <div>
-              <p style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>{data.businessName}</p>
-              <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 10 }}>
+              <p style={{ color: 'var(--ink-1)', fontWeight: 700, fontSize: 13, letterSpacing: '-.01em' }}>{data.businessName}</p>
+              <p style={{ color: 'var(--ink-3)', fontSize: 11 }}>
                 {data.amount && data.amount > 0 ? `₹${data.amount.toFixed(2)} fixed` : 'Open amount'}
               </p>
             </div>
@@ -558,15 +560,22 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
         </div>
       </div>
 
-      <button onClick={onReset}
-        style={{
-          width: '100%', background: 'transparent',
-          border: '1.5px solid rgba(0,0,0,0.12)', color: 'var(--ink-2)',
-          borderRadius: 12, padding: '12px',
-          fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-        }}>
-        + Create Another Link
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <button onClick={onReset}
+          style={{
+            minWidth: 300, background: 'var(--ink-1)',
+            border: 'none', color: '#fff',
+            borderRadius: 12, padding: '14px',
+            fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+            transition: 'opacity 0.15s',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        >
+          Create Another Link
+        </button>
+      </div>
     </div>
   )
 }
@@ -697,22 +706,22 @@ export default function Home() {
           zIndex: 10,
         }}>
           <div style={{
-            width: 28, height: 28,
+            width: 40, height: 40,
             background: logoWhite ? '#fff' : 'var(--cornflower)',
-            borderRadius: 7,
+            borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'background 0.1s',
           }}>
             <span style={{
               color: logoWhite ? 'var(--cornflower)' : '#fff',
               fontWeight: 900,
-              fontSize: 13,
+              fontSize: 20,
             }}>U</span>
           </div>
           <span style={{
             fontFamily: 'Manrope, sans-serif',
             fontWeight: 800,
-            fontSize: 15,
+            fontSize: 22,
             color: logoWhite ? '#fff' : 'var(--ink-1)',
             letterSpacing: '-.03em',
             transition: 'color 0.1s',
@@ -773,30 +782,62 @@ export default function Home() {
             />
           )}
         </div>
+
+        {/* Scroll down button — fades with headline */}
+        <button
+          onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+          style={{
+            position: 'absolute',
+            bottom: '6vh',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 6,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            zIndex: 5,
+            opacity: headlineGone ? 0 : headlineOpacity,
+            visibility: headlineGone ? 'hidden' : 'visible',
+            transition: 'opacity 0s',
+            color: 'var(--ink-4)',
+            fontFamily: 'inherit',
+            outline: 'none',
+          }}
+        >
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' }}>
+            Scroll Down
+          </span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'chevronDrop 2s infinite' }}>
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
       </div>
 
       {/* ── Scroll spacer ── */}
       <div style={{ height: '500vh', position: 'relative', zIndex: 2 }}>
-        {/* White card — fixed positioned, animates into place */}
+        {/* White card (or transparent container) — fixed positioned, animates into place */}
         <div style={{
           position: 'fixed',
           top: '50%',
           left: '50%',
-          width: 620,
+          width: formStep === 'form' ? 620 : 840,
           maxWidth: '92vw',
-          background: '#fff',
-          borderRadius: 22,
-          boxShadow: `0 ${24 * Math.min(riseT, 1)}px ${60 * Math.min(riseT, 1)}px rgba(11,18,32,${0.18 * Math.min(riseT, 1)})`,
+          background: formStep === 'form' ? '#fff' : 'transparent',
+          borderRadius: formStep === 'form' ? 22 : 0,
+          boxShadow: formStep === 'form' ? `0 ${24 * Math.min(riseT, 1)}px ${60 * Math.min(riseT, 1)}px rgba(11,18,32,${0.18 * Math.min(riseT, 1)})` : 'none',
           zIndex: 10,
           // transform origin center
           transform: `translate(-50%, calc(-50% + ${cardY}% + ${(1 - cardScale) * 200}px)) scale(${cardScale})`,
           opacity: cardOpacity,
           transformOrigin: 'center center',
-          transition: 'box-shadow 0s',
-          overflow: 'hidden',
+          transition: 'background 0.3s, box-shadow 0.3s, width 0.3s',
+          overflow: formStep === 'form' ? 'hidden' : 'visible',
         }}>
           {/* Top accent strip */}
-          <div style={{ height: 4, background: 'var(--cornflower)' }} />
+          {formStep === 'form' && <div style={{ height: 4, background: 'var(--cornflower)' }} />}
 
           {formStep === 'form' ? (
             <FormCard

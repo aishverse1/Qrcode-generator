@@ -121,12 +121,12 @@ function PayPageInner() {
           borderBottom: '1px solid rgba(0,0,0,0.07)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, background: 'var(--cornflower)', borderRadius: 8,
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, background: 'var(--cornflower)', borderRadius: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 15 }}>U</span>
+              <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 20 }}>U</span>
             </div>
-            <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
+            <span style={{ fontWeight: 800, fontSize: 22, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
               UPIDirectPay
             </span>
           </div>
@@ -173,12 +173,12 @@ function PayPageInner() {
           borderBottom: '1px solid rgba(0,0,0,0.07)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 32, height: 32, background: 'var(--cornflower)', borderRadius: 8,
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, background: 'var(--cornflower)', borderRadius: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 15 }}>U</span>
+              <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 20 }}>U</span>
             </div>
-            <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
+            <span style={{ fontWeight: 800, fontSize: 22, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
               UPIDirectPay
             </span>
           </div>
@@ -246,12 +246,12 @@ function PayPageInner() {
         borderBottom: '1px solid rgba(0,0,0,0.06)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: 'var(--cornflower)', borderRadius: 8,
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 40, height: 40, background: 'var(--cornflower)', borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 15 }}>U</span>
+            <span style={{ color: 'var(--white)', fontWeight: 900, fontSize: 20 }}>U</span>
           </div>
-          <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
+          <span style={{ fontWeight: 800, fontSize: 22, color: 'var(--ink-1)', letterSpacing: '-.03em' }}>
             UPIDirectPay
           </span>
         </div>

@@ -1,9 +1,6 @@
-import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { verifySignedPaymentToken } from '@/lib/token'
-import { MOBILE_UA_REGEX } from '@/lib/upi'
 import QrCard from '@/components/QrCard'
-import MobileRedirect from '@/components/MobileRedirect'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -40,11 +37,6 @@ export default async function SlugPage({ params, searchParams }: Props) {
 
   const { vpa, businessName, amount, remarkCode } = data
 
-  // Read User-Agent server-side to decide which view to render
-  const headersList = headers()
-  const userAgent = headersList.get('user-agent') || ''
-  const isMobile = MOBILE_UA_REGEX.test(userAgent)
-
   // Embed mode: compact stripped card (no header/footer), suitable for iframes
   if (isEmbed) {
     return (
@@ -60,19 +52,7 @@ export default async function SlugPage({ params, searchParams }: Props) {
     )
   }
 
-  // Mobile: fire UPI deep link immediately + fallback buttons
-  if (isMobile) {
-    return (
-      <MobileRedirect
-        vpa={vpa}
-        businessName={businessName}
-        amount={amount}
-        remarkCode={remarkCode}
-      />
-    )
-  }
-
-  // Desktop: full QR card with dark background
+  // Desktop & Mobile: full QR card with dark background
   return (
     <QrCard
       vpa={vpa}
