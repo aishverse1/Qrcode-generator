@@ -218,12 +218,6 @@ function PayPageInner() {
                 animation: 'progressBar 2s var(--ease-out-expo) forwards',
               }} />
             </div>
-            <style>{`
-              @keyframes progressBar {
-                0%   { width: 0%; }
-                100% { width: 100%; }
-              }
-            `}</style>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: 'var(--cornflower)' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                 style={{ animation: 'spin 0.8s linear infinite' }}>

@@ -178,7 +178,7 @@ function FormCard({
         {error && (
           <div style={{ background: '#FFE8E8', border: '1.5px solid #FFBABA',
             borderRadius: 10, padding: '10px 14px', marginBottom: 12 }}>
-            <p style={{ color: '#C62828', fontSize: 12, fontWeight: 500 }}>{error}</p>
+            <p style={{ color: 'var(--error-ink)', fontSize: 12, fontWeight: 500 }}>{error}</p>
           </div>
         )}
 
@@ -232,11 +232,11 @@ function FormCard({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
         <div>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)',
+          <label htmlFor="field-businessName" style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)',
             marginBottom: 5, letterSpacing: '.06em', textTransform: 'uppercase' }}>
             Business Name
           </label>
-          <input type="text" value={form.businessName}
+          <input id="field-businessName" type="text" value={form.businessName}
             onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))}
             placeholder="Ravi's Tea Stall"
             style={inputStyle}
@@ -245,44 +245,66 @@ function FormCard({
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)',
+          <label htmlFor="field-vpa" style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)',
             marginBottom: 5, letterSpacing: '.06em', textTransform: 'uppercase' }}>
             Your UPI ID
           </label>
           <div style={{ position: 'relative' }}>
-            <input ref={vpaRef} type="text" value={form.vpa}
+            <input ref={vpaRef} id="field-vpa" type="text" value={form.vpa}
               autoComplete="off"
               onChange={e => { setForm(f => ({ ...f, vpa: e.target.value })); setShowSugg(true) }}
               onFocus={() => setShowSugg(true)}
-              onBlur={() => setVpaTouched(true)}
+              onBlur={() => { setVpaTouched(true); setShowSugg(false) }}
+              onKeyDown={e => {
+                if (e.key === 'Escape') { setShowSugg(false); vpaRef.current?.blur() }
+                if (e.key === 'ArrowDown' && hints.length > 0) {
+                  e.preventDefault(); document.getElementById('sugg-0')?.focus()
+                }
+              }}
               placeholder="ravi@oksbi"
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
+              aria-expanded={showHints}
               style={{
                 ...inputStyle,
                 paddingRight: form.vpa ? 40 : 14,
-                borderColor: vpaTouched && form.vpa && !vpaValid ? '#FF6B6B' : 'rgba(0,0,0,0.12)',
+                borderColor: vpaTouched && form.vpa && !vpaValid ? 'var(--error-ink)' : 'rgba(0,0,0,0.12)',
               }} />
             {form.vpa && (
               <span style={{ position: 'absolute', right: 12, top: '50%',
                 transform: 'translateY(-50%)', fontSize: 14, fontWeight: 800,
-                color: vpaValid ? '#10B981' : '#FF6B6B' }}>
+                color: vpaValid ? '#10B981' : 'var(--error-ink)' }}>
                 {vpaValid ? <IconCheck /> : '✕'}
               </span>
             )}
             {showHints && (
-              <div ref={suggRef} style={{ position: 'absolute', left: 0, right: 0, top: '100%',
-                marginTop: 5, background: '#fff',
-                border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 12,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100, overflow: 'hidden' }}>
+              <div ref={suggRef} role="listbox" aria-label="Popular UPI handles"
+                style={{ position: 'absolute', left: 0, right: 0, top: '100%',
+                  marginTop: 5, background: '#fff',
+                  border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 12,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100, overflow: 'hidden' }}>
                 <p style={{ fontSize: 10, color: 'var(--ink-3)', fontWeight: 700,
                   padding: '8px 12px 3px', textTransform: 'uppercase', letterSpacing: '.06em' }}>
                   Popular handles
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, padding: '4px 12px 10px' }}>
-                  {hints.map(h => (
-                    <button key={h} type="button"
+                  {hints.map((h, i) => (
+                    <button key={h} id={`sugg-${i}`} role="option" type="button"
+                      aria-selected={false}
                       onMouseDown={e => { e.preventDefault()
                         setForm(f => ({ ...f, vpa: pfx + h })); setShowSugg(false)
                         vpaRef.current?.focus() }}
+                      onKeyDown={e => {
+                        if (e.key === 'Escape') { setShowSugg(false); vpaRef.current?.focus() }
+                        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                          const next = document.getElementById(`sugg-${i + 1}`)
+                          if (next) { e.preventDefault(); next.focus() }
+                          else { vpaRef.current?.focus() }
+                        }
+                        if (e.key === 'ArrowUp' && i === 0) {
+                          vpaRef.current?.focus()
+                        }
+                      }}
                       style={{ fontSize: 11, background: 'var(--cornflower-light)', color: 'var(--cornflower)',
                         fontWeight: 600, border: 'none', borderRadius: 100,
                         padding: '4px 11px', cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -294,7 +316,7 @@ function FormCard({
             )}
           </div>
           {!form.vpa && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 7 }}>
+            <div role="group" aria-label="Insert a popular UPI handle" style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 7 }}>
               {['@oksbi','@okhdfcbank','@okaxis','@ybl','@paytm','@apl'].map(h => (
                 <button key={h} type="button"
                   onClick={() => {
@@ -310,7 +332,7 @@ function FormCard({
             </div>
           )}
           {vpaTouched && form.vpa && !vpaValid && (
-            <p style={{ fontSize: 11, color: '#DC2626', marginTop: 5, fontWeight: 500 }}>
+            <p style={{ fontSize: 11, color: 'var(--error-ink)', marginTop: 5, fontWeight: 500 }}>
               Enter a valid UPI ID (e.g. name@oksbi)
             </p>
           )}
@@ -336,7 +358,7 @@ function FormCard({
         {error && (
           <div style={{ background: '#FFE8E8', border: '1.5px solid #FFBABA',
             borderRadius: 10, padding: '10px 14px' }}>
-            <p style={{ color: '#C62828', fontSize: 12, fontWeight: 500 }}>{error}</p>
+            <p style={{ color: 'var(--error-ink)', fontSize: 12, fontWeight: 500 }}>{error}</p>
           </div>
         )}
 
@@ -615,23 +637,19 @@ export default function Home() {
   const SCATTER_END = 0.55  // scatter 0 → 55vh
   const scatterT = Math.min(scrollProgress / SCATTER_END, 1)  // 0-55vh: scatter
   const riseT    = Math.max(0, (scrollProgress - 0.4) / 0.6) // 40-100vh: card rise + headline fade
-  const easeOutBack = (t: number) => {
-    const c1 = 1.70158, c3 = c1 + 1
-    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2)
-  }
-  const springT  = easeOutBack(riseT)
+  const easeOutExpo = (t: number) => 1 - Math.pow(1 - t, 3)
+  const springT  = easeOutExpo(riseT)
   const cardY    = (1 - Math.min(springT, 1)) * 120  // 120% → 0%
   const cardScale = 0.92 + Math.min(springT, 1) * 0.08  // 0.92 → 1
   const cardOpacity = Math.min(riseT * 2, 1)  // fade in faster
 
-  // Headline fades starting at 40vh (ahead of bloom)
-  const headlineOpacity = 1 - Math.min(riseT, 1)
+  // Headline fades fast starting at 35vh — gone before bloom fills
+  const headlineT    = Math.max(0, Math.min((scrollProgress - 0.35) / 0.2, 1))
+  const headlineOpacity = 1 - easeOutExpo(headlineT)
+  const headlineGone    = headlineOpacity < 0.01  // visibility:hidden once fully faded
 
   // Logo turns white when bloom reaches top-left (~40vh)
   const logoWhite = scrollProgress > 0.38
-
-  // Headline fully gone before bloom fills screen
-  const headlineGone = scrollProgress > 0.78
 
   // Cornflower semicircle: clip-path circle expanding from bottom-center
   const blueClip = Math.min(riseT * 2.2, 1)  // slightly overshoot
@@ -713,6 +731,7 @@ export default function Home() {
           zIndex: 5,
           pointerEvents: 'none',
           opacity: headlineGone ? 0 : headlineOpacity,
+          visibility: headlineGone ? 'hidden' : 'visible',
           transition: 'opacity 0s',
         }}>
           <h1 style={{
@@ -733,7 +752,7 @@ export default function Home() {
             color: 'var(--ink-3)',
             lineHeight: 1.6,
             letterSpacing: '-0.01em',
-            maxWidth: 420,
+            textAlign: 'center',
           }}>
             Zero commission. Direct to your bank.
           </p>

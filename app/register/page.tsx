@@ -204,7 +204,7 @@ export default function RegisterPage() {
             {error && (
               <div style={{ background: '#FFE8E8', border: '1.5px solid #FFBABA',
                 borderRadius: 'var(--radius-sm)', padding: '12px 16px', marginBottom: 12 }}>
-                <p style={{ color: '#C62828', fontSize: 13, fontWeight: 500 }}>{error}</p>
+                <p style={{ color: 'var(--error-ink)', fontSize: 13, fontWeight: 500 }}>{error}</p>
               </div>
             )}
 
@@ -284,11 +284,11 @@ export default function RegisterPage() {
 
             {/* Business Name */}
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-2)',
+              <label htmlFor="reg-businessName" style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-2)',
                 marginBottom: 6, letterSpacing: '.07em', textTransform: 'uppercase' }}>
                 Business Name
               </label>
-              <input type="text" value={form.businessName}
+              <input id="reg-businessName" type="text" value={form.businessName}
                 onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))}
                 placeholder="Ravi's Tea Stall"
                 required
@@ -298,44 +298,66 @@ export default function RegisterPage() {
 
             {/* UPI VPA */}
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-2)',
+              <label htmlFor="reg-vpa" style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-2)',
                 marginBottom: 6, letterSpacing: '.07em', textTransform: 'uppercase' }}>
                 Your UPI ID
               </label>
               <div style={{ position: 'relative' }}>
-                <input ref={vpaRef} type="text" value={form.vpa}
+                <input ref={vpaRef} id="reg-vpa" type="text" value={form.vpa}
                   onChange={e => { setForm(f => ({ ...f, vpa: e.target.value })); setShowSuggestions(true) }}
                   onFocus={() => setShowSuggestions(true)}
-                  onBlur={() => setVpaTouched(true)}
+                  onBlur={() => { setVpaTouched(true); setShowSuggestions(false) }}
+                  onKeyDown={e => {
+                    if (e.key === 'Escape') { setShowSuggestions(false); vpaRef.current?.blur() }
+                    if (e.key === 'ArrowDown' && filteredHandles.length > 0) {
+                      e.preventDefault(); document.getElementById('reg-sugg-0')?.focus()
+                    }
+                  }}
                   placeholder="ravi@oksbi"
                   required autoComplete="off"
+                  aria-autocomplete="list"
+                  aria-haspopup="listbox"
+                  aria-expanded={shouldShowSuggestions}
                   style={{
                     ...inputBase, paddingRight: form.vpa ? 40 : 16,
-                    borderColor: vpaTouched && form.vpa && !vpaValid ? '#FF6B6B' : '#E0E0E0',
+                    borderColor: vpaTouched && form.vpa && !vpaValid ? 'var(--error-ink)' : '#E0E0E0',
                   }} />
                 {form.vpa && (
                   <span style={{ position: 'absolute', right: 14, top: '50%',
                     transform: 'translateY(-50%)', fontSize: 14, fontWeight: 800,
-                    color: vpaValid ? '#10B981' : '#FF6B6B' }}>
+                    color: vpaValid ? '#10B981' : 'var(--error-ink)' }}>
                     {vpaValid ? <IconCheck /> : '✕'}
                   </span>
                 )}
                 {shouldShowSuggestions && (
-                  <div ref={suggestionsRef} style={{
-                    position: 'absolute', left: 0, right: 0, top: '100%', marginTop: 6,
-                    background: 'var(--white)', border: '1.5px solid #E0E0E0',
-                    borderRadius: 'var(--radius-md)',
-                    boxShadow: '0 12px 32px rgba(0,0,0,0.12)', zIndex: 100, overflow: 'hidden',
-                    animation: 'slideUpFade 0.2s var(--ease-out-expo) both',
-                  }}>
+                  <div ref={suggestionsRef} role="listbox" aria-label="Popular UPI handles"
+                    style={{
+                      position: 'absolute', left: 0, right: 0, top: '100%', marginTop: 6,
+                      background: 'var(--white)', border: '1.5px solid #E0E0E0',
+                      borderRadius: 'var(--radius-md)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.12)', zIndex: 100, overflow: 'hidden',
+                      animation: 'slideUpFade 0.2s var(--ease-out-expo) both',
+                    }}>
                     <p style={{ fontSize: 10, color: 'var(--ink-3)', fontWeight: 700,
                       padding: '8px 14px 4px', textTransform: 'uppercase', letterSpacing: '.06em' }}>
                       Popular UPI handles
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '4px 14px 12px' }}>
-                      {filteredHandles.map(h => (
-                        <button key={h} type="button"
+                      {filteredHandles.map((h, i) => (
+                        <button key={h} id={`reg-sugg-${i}`} role="option" type="button"
+                          aria-selected={false}
                           onMouseDown={e => { e.preventDefault(); applySuggestion(h) }}
+                          onKeyDown={e => {
+                            if (e.key === 'Escape') { setShowSuggestions(false); vpaRef.current?.focus() }
+                            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                              const next = document.getElementById(`reg-sugg-${i + 1}`)
+                              if (next) { e.preventDefault(); next.focus() }
+                              else { vpaRef.current?.focus() }
+                            }
+                            if (e.key === 'ArrowUp' && i === 0) {
+                              vpaRef.current?.focus()
+                            }
+                          }}
                           style={{ fontSize: 12, background: 'var(--cornflower-light)', color: 'var(--cornflower)',
                             fontWeight: 600, border: 'none', borderRadius: 100,
                             padding: '5px 13px', cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -349,7 +371,7 @@ export default function RegisterPage() {
 
               {/* Popular handle chips */}
               {!form.vpa && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                <div role="group" aria-label="Insert a popular UPI handle" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                   {['@oksbi', '@okhdfcbank', '@okaxis', '@ybl', '@paytm', '@apl'].map(h => (
                     <button key={h} type="button"
                       onClick={() => {
@@ -365,7 +387,7 @@ export default function RegisterPage() {
                 </div>
               )}
               {vpaTouched && form.vpa && !vpaValid && (
-                <p style={{ fontSize: 11, color: '#DC2626', marginTop: 5, fontWeight: 500 }}>
+                <p style={{ fontSize: 11, color: 'var(--error-ink)', marginTop: 5, fontWeight: 500 }}>
                   Enter a valid UPI ID (e.g. name@oksbi)
                 </p>
               )}
@@ -373,14 +395,14 @@ export default function RegisterPage() {
 
             {/* Amount */}
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-2)',
+              <label htmlFor="reg-amount" style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--ink-2)',
                 marginBottom: 6, letterSpacing: '.07em', textTransform: 'uppercase' }}>
                 Amount <span style={{ color: 'var(--ink-4)', fontWeight: 400, textTransform: 'none' }}>(optional)</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <span style={{ position: 'absolute', left: 15, top: '50%',
                   transform: 'translateY(-50%)', color: 'var(--ink-3)', fontSize: 15, fontWeight: 600 }}>₹</span>
-                <input type="number" value={form.amount}
+                <input id="reg-amount" type="number" value={form.amount}
                   onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
                   placeholder="0.00" min="1" step="0.01"
                   style={{ ...inputBase, paddingLeft: 34 }}
@@ -391,7 +413,7 @@ export default function RegisterPage() {
             {error && (
               <div style={{ background: '#FFE8E8', border: '1.5px solid #FFBABA',
                 borderRadius: 'var(--radius-sm)', padding: '12px 16px' }}>
-                <p style={{ color: '#C62828', fontSize: 13, fontWeight: 500 }}>{error}</p>
+                <p style={{ color: 'var(--error-ink)', fontSize: 13, fontWeight: 500 }}>{error}</p>
               </div>
             )}
 

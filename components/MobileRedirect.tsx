@@ -152,12 +152,6 @@ export default function MobileRedirect({ vpa, businessName, amount, remarkCode }
                   animation: `progressBar ${countdown}s var(--ease-out-expo) forwards`,
                 }} />
               </div>
-              <style>{`
-                @keyframes progressBar {
-                  from { width: 0%; }
-                  to   { width: 100%; }
-                }
-              `}</style>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12, color: 'var(--cornflower)' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"

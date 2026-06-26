@@ -16,7 +16,7 @@
   /* Ink scale on white */
   --ink-1: #0D0D0D;
   --ink-2: #4D4D4D;
-  --ink-3: #808080;
+  --ink-3: #787878;
   --ink-4: #B3B3B3;
 
   /* Cornflower tint surfaces */
@@ -31,6 +31,9 @@
   --status-expired-ink: #64748B;
   --status-failed-bg: #FEE2E2;
   --status-failed-ink: #991B1B;
+
+  /* Semantic — error */
+  --error-ink: #B91C1C;
 
   /* Spacing */
   --radius-sm:  4px;
@@ -117,6 +120,15 @@ body {
   20%  { opacity: 1; }
   80%  { opacity: 1; }
   100% { transform: translateY(6px); opacity: 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes progressBar {
+  from { width: 0%; }
+  to   { width: 100%; }
 }
 
 @keyframes progressPulse {
