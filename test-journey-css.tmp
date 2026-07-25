@@ -1,0 +1,114 @@
+/* ── Journey / Tutorial Section ───────────────────────────────── */
+.journey {
+  padding: 120px 0;
+  background: #f3f6fc;
+}
+.journey h2 {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  margin-bottom: 16px;
+}
+.journey .subtitle {
+  font-size: 18px;
+  color: var(--ink-3);
+  max-width: 500px;
+  margin: 0 auto;
+}
+.journey-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.journey-steps {
+  position: relative;
+  padding-left: 60px;
+}
+.journey-steps::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0,0,0,0.1);
+}
+.journey-progress {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  width: 1px;
+  background: var(--cornflower);
+  transform-origin: top;
+  transition: height 0.4s ease;
+}
+.journey-step {
+  position: relative;
+  padding-bottom: 100px;
+  opacity: 0.4;
+  transition: opacity 0.4s;
+}
+.journey-step.active {
+  opacity: 1;
+}
+.step-indicator {
+  position: absolute;
+  left: -40px;
+  top: 0;
+  width: 40px;
+  height: 32px;
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink-3);
+  z-index: 2;
+  transition: all 0.4s;
+  transform: translateX(-50%);
+}
+.journey-step.active .step-indicator {
+  background: var(--cornflower);
+  border-color: var(--cornflower);
+  color: var(--white);
+  box-shadow: none;
+}
+.step-content h3 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+.step-content p {
+  font-size: 16px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+.journey-visuals {
+  position: sticky;
+  top: 140px;
+  height: 500px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.visual-frame {
+  width: 100%;
+  position: absolute;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  visibility: hidden;
+  display: flex;
+  justify-content: center;
+}
+.visual-frame.active {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
