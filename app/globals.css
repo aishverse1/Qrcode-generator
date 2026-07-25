@@ -839,7 +839,7 @@ body {
 /* ── Success Grid ─────────────────────────────────────────────── */
 .success-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 360px 1fr;
   gap: 20px;
   margin-bottom: 32px;
 }

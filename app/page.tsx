@@ -504,8 +504,8 @@ export default function Home() {
         {/* Form Container */}
         <div style={{
           position: 'relative', zIndex: 2,
-          width: successData ? 840 : 620,
-          maxWidth: '92vw',
+          width: successData ? 960 : 620,
+          maxWidth: '96vw',
           background: successData ? 'transparent' : '#fff',
           borderRadius: successData ? 0 : 22,
           boxShadow: successData ? 'none' : '0 24px 60px rgba(11,18,32,0.18)',
@@ -644,7 +644,6 @@ export default function Home() {
                 <div className="step-content">
                   <h3 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     Add your business details
-                    <span style={{ fontSize: 10, background: '#444', color: '#fff', padding: '3px 6px', borderRadius: 4, letterSpacing: '0.05em', fontWeight: 600 }}>UPIDirectPay.html</span>
                   </h3>
                   <p>Enter your business name and UPI ID. We validate your VPA format in real-time against supported bank handles.</p>
                   <div style={{ color: '#10B981', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
