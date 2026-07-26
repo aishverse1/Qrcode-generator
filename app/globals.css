@@ -831,9 +831,6 @@ body {
   .success-grid {
     grid-template-columns: 1fr !important;
   }
-  .success-code-tabs {
-    display: none;
-  }
 }
 
 /* ── Small phones (≤ 480px) ──────────────────────────────────── */
