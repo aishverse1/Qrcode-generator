@@ -698,6 +698,14 @@ body {
 
 /* ── Media Queries ────────────────────────────────────────────── */
 
+/* ── Success Grid (Overlay) ──────────────────────────────────── */
+.success-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
 /* ── Tablet (≤ 992px) ────────────────────────────────────────── */
 @media (max-width: 992px) {
   .container { padding: 0 24px; }
@@ -818,6 +826,14 @@ body {
     gap: 16px;
     text-align: center;
   }
+
+  /* Success overlay */
+  .success-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .success-code-tabs {
+    display: none;
+  }
 }
 
 /* ── Small phones (≤ 480px) ──────────────────────────────────── */
@@ -844,11 +860,4 @@ body {
   }
 }
 
-/* ── Success Grid ─────────────────────────────────────────────── */
-.success-grid {
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 20px;
-  margin-bottom: 32px;
-}
 

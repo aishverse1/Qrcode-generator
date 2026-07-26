@@ -499,7 +499,7 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
           </div>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center', minWidth: 0 }}>
+        <div className="success-code-tabs" style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center', minWidth: 0 }}>
           <div>
             <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 5 }}>Add snippet to your website</p>
             <SuccessCodeTabs shareUrl={shareUrl} data={data} upiLink={upiLink} />
@@ -626,7 +626,10 @@ export default function Home() {
       <div style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         pointerEvents: isCreating ? 'auto' : 'none',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        overflowY: 'auto',
+        paddingTop: 'clamp(60px, 8vh, 100px)',
+        paddingBottom: 60,
       }}>
         {/* Top Left Logo in Overlay */}
         <div style={{
@@ -650,7 +653,7 @@ export default function Home() {
         {/* Form Container */}
         <div style={{
           position: 'relative', zIndex: 2,
-          width: successData ? 960 : 620,
+          width: successData ? 'min(960px, 96vw)' : 620,
           maxWidth: '96vw',
           background: successData ? 'transparent' : '#fff',
           borderRadius: successData ? 0 : 22,
