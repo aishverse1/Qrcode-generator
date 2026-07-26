@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { buildUpiLink } from '@/lib/upi'
+import { buildUpiLink, getCleanOrigin } from '@/lib/upi'
 import Image from 'next/image'
 
 // Import logos from root directory
@@ -87,7 +87,7 @@ export default function QrCard({ vpa, businessName, amount, remarkCode, embedMod
   }, [upiLink])
 
   function copyLink() {
-    const url = `${window.location.origin}${window.location.pathname}`
+    const url = `${getCleanOrigin()}${window.location.pathname}`
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)

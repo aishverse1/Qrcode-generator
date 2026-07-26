@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { isValidVpa, BANK_HANDLES, buildUpiLink } from '@/lib/upi'
+import { isValidVpa, BANK_HANDLES, buildUpiLink, getCleanOrigin } from '@/lib/upi'
 import CodeSnippetDemo, { cm, kw, st, fn, nm, tg, at, op } from '@/components/CodeSnippetDemo'
 
 /* ── 3D Tilt Hook (smooth lerp + RAF) ────────────────────────── */
@@ -333,7 +333,7 @@ function FormCard({ visible, onSuccess }: { visible: boolean; onSuccess: (data: 
 function SuccessCodeTabs({ shareUrl, data, upiLink }: { shareUrl: string, data: SuccessData, upiLink: string }) {
   const [activeTab, setActiveTab] = useState(0)
   const [copied, setCopied] = useState(false)
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://upidirectpay.com'
+  const origin = getCleanOrigin()
 
   const TABS = [
     { id: 'link', label: 'Shareable Link', icon: '🔗' },
@@ -440,7 +440,7 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
   const [qrLoading, setQrLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [copiedUpi, setCopiedUpi] = useState(false)
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const baseUrl = getCleanOrigin()
   const shareUrl = `${baseUrl}/${data.token}`
   const upiLink = buildUpiLink({ vpa: data.vpa, businessName: data.businessName, amount: data.amount, remarkCode: 'UPIDirectPay' })
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${data.businessName} wants you to pay them via UPI. Click here to pay: ${shareUrl}`)}`

@@ -24,6 +24,16 @@ export function isValidVpa(vpa: string): boolean {
   return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/.test(vpa)
 }
 
+export function getCleanOrigin(): string {
+  if (typeof window === 'undefined') return 'https://upidirectpay.com'
+  let origin = window.location.origin
+  // Clean up long Vercel preview URLs to short project URLs
+  if (origin.includes('-nachiyar-s-projects.vercel.app')) {
+    origin = origin.replace(/-[a-z0-9]+-nachiyar-s-projects\.vercel\.app$/, '.vercel.app')
+  }
+  return origin
+}
+
 export const BANK_HANDLES = [
   // Google Pay / PhonePe / Paytm top handles
   '@oksbi',

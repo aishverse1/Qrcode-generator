@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { getCleanOrigin } from '@/lib/upi'
 
 /* ── Syntax token helpers (Material Palenight palette) ────────── */
 export const cm = (v: string) => <span style={{ color: '#636D83' }}>{v}</span>
@@ -121,7 +122,7 @@ export default function CodeSnippetDemo() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setOrigin(window.location.origin)
+      setOrigin(getCleanOrigin())
     }
   }, [])
 
