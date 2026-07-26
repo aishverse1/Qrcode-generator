@@ -635,15 +635,16 @@ export default function Home() {
       <div style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         pointerEvents: isCreating ? 'auto' : 'none',
-        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start',
         overflowY: 'auto',
-        paddingTop: 'clamp(60px, 8vh, 100px)',
-        paddingBottom: 60,
+        WebkitOverflowScrolling: 'touch',
+        paddingTop: 'clamp(55px, 7vh, 90px)',
+        paddingBottom: 24,
       }}>
         {/* Top Left Logo in Overlay */}
         <div style={{
-          position: 'absolute', top: 24, left: 32, zIndex: 10,
-          display: 'flex', alignItems: 'center', gap: 12,
+          position: 'fixed', top: 16, left: 20, zIndex: 1100,
+          display: 'flex', alignItems: 'center', gap: 10,
           opacity: isCreating ? 1 : 0, transition: 'opacity 0.6s ease',
           pointerEvents: isCreating ? 'auto' : 'none'
         }}>
@@ -651,9 +652,27 @@ export default function Home() {
           <span className="nav-logo-text" style={{ color: '#fff' }}>UPIDirectPay</span>
         </div>
 
+        {/* Close Button */}
+        <button 
+          onClick={() => {
+            setIsCreating(false)
+            setTimeout(() => setSuccessData(null), 800)
+          }}
+          style={{
+            position: 'fixed', top: 16, right: 20,
+            background: 'rgba(0,0,0,0.2)', border: 'none', borderRadius: '50%',
+            width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', zIndex: 1100, color: '#fff', backdropFilter: 'blur(8px)',
+            opacity: isCreating ? 1 : 0, pointerEvents: isCreating ? 'auto' : 'none',
+            transition: 'opacity 0.3s'
+          }}
+        >
+          ✕
+        </button>
+
         {/* Expanding Background Circle */}
         <div style={{
-          position: 'absolute', inset: 0,
+          position: 'fixed', inset: 0,
           background: 'var(--cornflower)',
           clipPath: isCreating ? 'circle(150% at 50% 100%)' : 'circle(0% at 50% 100%)',
           transition: 'clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -662,35 +681,16 @@ export default function Home() {
         {/* Form Container */}
         <div style={{
           position: 'relative', zIndex: 2,
-          width: successData ? 'min(960px, 96vw)' : 620,
-          maxWidth: '96vw',
+          width: successData ? 'min(960px, 94vw)' : 620,
+          maxWidth: '94vw',
           background: successData ? 'transparent' : '#fff',
           borderRadius: successData ? 0 : 22,
           boxShadow: successData ? 'none' : '0 24px 60px rgba(11,18,32,0.18)',
           transform: `scale(${isCreating ? 1 : 0.95}) translateY(${isCreating ? 0 : 40}px)`,
           opacity: isCreating ? 1 : 0,
           transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, opacity 0.6s ease 0.1s, width 0.3s',
-          overflow: successData ? 'visible' : 'hidden',
-          maxHeight: '95vh',
-          overflowY: 'auto'
         }}>
           {!successData && <div style={{ height: 4, background: 'var(--cornflower-lighter)' }} />}
-          
-          {/* Close button */}
-          <button 
-            onClick={() => {
-              setIsCreating(false)
-              setTimeout(() => setSuccessData(null), 800)
-            }}
-            style={{
-              position: 'absolute', top: 16, right: 16,
-              background: 'rgba(0,0,0,0.05)', border: 'none', borderRadius: '50%',
-              width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', zIndex: 10, color: successData ? '#fff' : 'var(--ink-1)'
-            }}
-          >
-            ✕
-          </button>
 
           {successData ? (
             <SuccessCard data={successData} onReset={() => setSuccessData(null)} />
@@ -701,19 +701,19 @@ export default function Home() {
 
         {/* Overlay Footer */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3,
+          position: 'relative', zIndex: 3, marginTop: 28, marginBottom: 12,
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '6px 16px',
-          padding: '14px 32px',
+          padding: '0 20px',
           opacity: isCreating ? 1 : 0, transition: 'opacity 0.6s ease 0.3s',
           pointerEvents: 'none',
         }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>© 2025 UPIDirectPay</span>
-          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.35)', display: 'inline-block', flexShrink: 0 }} />
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>Zero Commission</span>
-          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.35)', display: 'inline-block', flexShrink: 0 }} />
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>Secured by NPCI</span>
-          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.35)', display: 'inline-block', flexShrink: 0 }} />
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>Privacy Policy</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>© 2026 UPIDirectPay</span>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Zero Commission</span>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Secured by NPCI</span>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Privacy Policy</span>
         </div>
       </div>
 
