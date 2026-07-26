@@ -4,6 +4,90 @@ import { useState, useRef, useEffect } from 'react'
 import { isValidVpa, BANK_HANDLES, buildUpiLink } from '@/lib/upi'
 import CodeSnippetDemo, { cm, kw, st, fn, nm, tg, at, op } from '@/components/CodeSnippetDemo'
 
+/* ── 3D Tilt Hook (smooth lerp + RAF) ────────────────────────── */
+function useTilt(intensity = 8) {
+  const ref = useRef<HTMLDivElement>(null)
+  const target = useRef({ x: 0, y: 0 })
+  const current = useRef({ x: 0, y: 0 })
+  const rafId = useRef<number | null>(null)
+  const isHovered = useRef(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+
+    function animate() {
+      // lerp factor: 0.08 = slow/buttery, 0.15 = snappier
+      current.current.x = lerp(current.current.x, target.current.x, 0.1)
+      current.current.y = lerp(current.current.y, target.current.y, 0.1)
+
+      const scale = isHovered.current ? 1.02 : 1
+      el!.style.transform = `perspective(1200px) rotateX(${current.current.x}deg) rotateY(${current.current.y}deg) scale(${scale})`
+
+      // keep animating until settled
+      const dx = Math.abs(current.current.x - target.current.x)
+      const dy = Math.abs(current.current.y - target.current.y)
+      if (dx > 0.01 || dy > 0.01 || isHovered.current) {
+        rafId.current = requestAnimationFrame(animate)
+      } else {
+        rafId.current = null
+      }
+    }
+
+    let lastEvent: MouseEvent | null = null
+
+    function updateTilt(e: MouseEvent) {
+      lastEvent = e
+      const rect = el!.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      const cx = rect.width / 2
+      const cy = rect.height / 2
+      target.current.x = ((y - cy) / cy) * -intensity
+      target.current.y = ((x - cx) / cx) * intensity
+      if (!isHovered.current) {
+        isHovered.current = true
+        if (!rafId.current) rafId.current = requestAnimationFrame(animate)
+      }
+    }
+
+    function onMouseMove(e: MouseEvent) {
+      updateTilt(e)
+    }
+
+    function onMouseLeave() {
+      isHovered.current = false
+      target.current.x = 0
+      target.current.y = 0
+      if (!rafId.current) rafId.current = requestAnimationFrame(animate)
+    }
+    
+    function onResize() {
+      if (lastEvent && isHovered.current) {
+        updateTilt(lastEvent)
+      }
+    }
+
+    el.addEventListener('mousemove', onMouseMove)
+    el.addEventListener('mouseleave', onMouseLeave)
+    window.addEventListener('resize', onResize)
+    window.addEventListener('blur', onMouseLeave)
+
+    return () => {
+      el.removeEventListener('mousemove', onMouseMove)
+      el.removeEventListener('mouseleave', onMouseLeave)
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('blur', onMouseLeave)
+      if (rafId.current) cancelAnimationFrame(rafId.current)
+      rafId.current = null
+    }
+  }, [intensity])
+
+  return ref
+}
+
 type FormStep = 'input' | 'confirm'
 
 interface SuccessData {
@@ -415,7 +499,7 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
           </div>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center' }}>
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center', minWidth: 0 }}>
           <div>
             <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 5 }}>Add snippet to your website</p>
             <SuccessCodeTabs shareUrl={shareUrl} data={data} upiLink={upiLink} />
@@ -442,6 +526,57 @@ function QrImage({ vpa, businessName, amount }: { vpa: string; businessName: str
   if (!src) return <div style={{ width: 160, height: 160 }} />
   return <img src={src} alt="QR Code" width={160} height={160} style={{ borderRadius: 4 }} />
 }
+
+function TiltHeroCard() {
+  const tiltRef = useTilt(8)
+  return (
+    <div className="hero-visual">
+      <div
+        ref={tiltRef}
+        className="hero-card"
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+          <div style={{ width: 40, height: 40, background: 'var(--cornflower)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 18, transform: 'translateZ(12px)' }}>R</div>
+          <div style={{ transform: 'translateZ(8px)' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink-1)', lineHeight: 1.2 }}>Ravi&apos;s Tea Stall</h3>
+            <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>ravi@oksbi</p>
+          </div>
+        </div>
+        <div style={{ background: '#F8FAFC', padding: 24, borderRadius: 16, textAlign: 'center', marginBottom: 24, transform: 'translateZ(4px)' }}>
+          <div style={{ width: 140, height: 140, background: '#fff', borderRadius: 12, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.05)' }}>
+            <QrImage vpa="ravi@oksbi" businessName="Ravi's Tea Stall" amount={null} />
+          </div>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-2)' }}>Scan and pay with any UPI app</p>
+        </div>
+        <button style={{ width: '100%', padding: '14px', background: 'var(--ink-1)', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer', transform: 'translateZ(6px)' }}>
+          Pay ₹500.00
+        </button>
+      </div>
+
+      {/* Floating Notifications — counter-tilted for depth */}
+      <div className="float-card float-card-1" style={{ transform: 'translateZ(20px)' }}>
+        <div className="notification-icon icon-success">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-1)', lineHeight: 1.2 }}>Payment Received</p>
+          <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>₹500.00 from Ananya</p>
+        </div>
+      </div>
+
+      <div className="float-card float-card-2" style={{ transform: 'translateZ(20px)' }}>
+        <div className="notification-icon icon-brand">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        </div>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-1)', lineHeight: 1.2 }}>Link Generated</p>
+          <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>Shared via WhatsApp</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 
 /* ── Home Page Replacement ───────────────────────────────────── */
 export default function Home() {
@@ -493,6 +628,17 @@ export default function Home() {
         pointerEvents: isCreating ? 'auto' : 'none',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
+        {/* Top Left Logo in Overlay */}
+        <div style={{
+          position: 'absolute', top: 24, left: 32, zIndex: 10,
+          display: 'flex', alignItems: 'center', gap: 12,
+          opacity: isCreating ? 1 : 0, transition: 'opacity 0.6s ease',
+          pointerEvents: isCreating ? 'auto' : 'none'
+        }}>
+          <div className="nav-logo-icon" style={{ background: '#fff', color: 'var(--cornflower)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>U</div>
+          <span className="nav-logo-text" style={{ color: '#fff' }}>UPIDirectPay</span>
+        </div>
+
         {/* Expanding Background Circle */}
         <div style={{
           position: 'absolute', inset: 0,
@@ -540,11 +686,28 @@ export default function Home() {
             <FormCard visible={isCreating} onSuccess={(data) => setSuccessData(data)} />
           )}
         </div>
+
+        {/* Overlay Footer */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '6px 16px',
+          padding: '14px 32px',
+          opacity: isCreating ? 1 : 0, transition: 'opacity 0.6s ease 0.3s',
+          pointerEvents: 'none',
+        }}>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>© 2025 UPIDirectPay</span>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.35)', display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>Zero Commission</span>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.35)', display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>Secured by NPCI</span>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.35)', display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>Privacy Policy</span>
+        </div>
       </div>
 
       {/* Navbar */}
       <nav className={`nav-wrapper ${scrolled ? 'scrolled' : ''}`}>
-        <div className="container">
+        <div className="nav-container">
           <div className="nav-content">
             <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo(0,0) }} className="nav-logo">
               <div className="nav-logo-icon">U</div>
@@ -588,47 +751,7 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="hero-visual">
-              <div className="hero-card">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                  <div style={{ width: 40, height: 40, background: 'var(--cornflower)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 18 }}>R</div>
-                  <div>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink-1)', lineHeight: 1.2 }}>Ravi's Tea Stall</h3>
-                    <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>ravi@oksbi</p>
-                  </div>
-                </div>
-                <div style={{ background: '#F8FAFC', padding: 24, borderRadius: 16, textAlign: 'center', marginBottom: 24 }}>
-                  <div style={{ width: 140, height: 140, background: '#fff', borderRadius: 12, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.05)' }}>
-                    <QrImage vpa="ravi@oksbi" businessName="Ravi's Tea Stall" amount={null} />
-                  </div>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-2)' }}>Scan and pay with any UPI app</p>
-                </div>
-                <button style={{ width: '100%', padding: '14px', background: 'var(--ink-1)', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
-                  Pay ₹500.00
-                </button>
-              </div>
-
-              {/* Floating Notifications */}
-              <div className="float-card float-card-1">
-                <div className="notification-icon icon-success">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                </div>
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-1)', lineHeight: 1.2 }}>Payment Received</p>
-                  <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>₹500.00 from Ananya</p>
-                </div>
-              </div>
-              
-              <div className="float-card float-card-2">
-                <div className="notification-icon icon-brand">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                </div>
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-1)', lineHeight: 1.2 }}>Link Generated</p>
-                  <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>Shared via WhatsApp</p>
-                </div>
-              </div>
-            </div>
+            <TiltHeroCard />
           </div>
         </div>
       </section>
