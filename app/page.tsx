@@ -440,6 +440,7 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
   const [qrLoading, setQrLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [copiedUpi, setCopiedUpi] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const baseUrl = getCleanOrigin()
   const shareUrl = `${baseUrl}/${data.token}`
   const upiLink = buildUpiLink({ vpa: data.vpa, businessName: data.businessName, amount: data.amount, remarkCode: 'UPIDirectPay' })
@@ -463,6 +464,13 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
       setQrLoading(false)
     }
   }
+
+  useEffect(() => {
+    function check() { setIsMobile(window.innerWidth <= 768) }
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   return (
     <div style={{ padding: '0px 10px' }}>
@@ -499,15 +507,17 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
           </div>
         </div>
 
-        <div className="success-code-tabs" style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center', minWidth: 0 }}>
-          <div>
-            <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 5 }}>Add snippet to your website</p>
-            <SuccessCodeTabs shareUrl={shareUrl} data={data} upiLink={upiLink} />
+        {!isMobile && (
+          <div className="success-code-tabs" style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center', minWidth: 0 }}>
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 5 }}>Add snippet to your website</p>
+              <SuccessCodeTabs shareUrl={shareUrl} data={data} upiLink={upiLink} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <button onClick={onReset} style={{ minWidth: 300, background: 'var(--ink-1)', border: 'none', color: '#fff', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+        <button onClick={onReset} style={{ width: isMobile ? '100%' : 300, background: 'var(--ink-1)', border: 'none', color: '#fff', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
           Create Another Link
         </button>
       </div>
