@@ -38,21 +38,21 @@ Open questions before this becomes a proposal:
 - UX: is a mismatch a hard block, a warning, or just informational?
 - See the framing note below — this may end up lower priority than it first looked.
 
-### Framing note: donation model, not transaction model
+### Framing note: tipping/support model, not transaction model
 
 Reframes how much verification effort (this item, and VPA ownership verification broadly) is
-actually warranted. Platforms like BuyMeACoffee or Razorpay verify sellers because they're
-brokering a *transaction* — money changes hands in exchange for a specific good/service/delivery
-promise, so there's a real dispute-resolution and consumer-protection obligation on the platform.
-UPIDirectPay isn't in that position: it's closer to a *donation/tip-jar* model — the payer
-already knows who they intend to pay (a creator, a shop, a person) before they scan; the platform
-is just generating the UI and QR, not brokering a promise of goods/services or standing behind a
-transaction outcome.
+actually warranted. A platform like Razorpay verifies sellers because it's brokering a
+*transaction* — money changes hands in exchange for a specific good/service/delivery promise, so
+there's a real dispute-resolution and consumer-protection obligation on the platform. BuyMeACoffee
+is the closer comparison for us: it's a *tipping/support* model — the payer already knows who
+they intend to pay (a creator, a shop, a person) before they scan or click, there's no delivery
+promise being brokered, and the platform isn't standing behind a transaction outcome. UPIDirectPay
+sits in that same tipping/support category, not the marketplace/e-commerce one.
 
 Practical effect: the disclaimer-based approach for VPA ownership (already settled, see the
-legal-hedging research from this session) is proportionate to a donation-model platform, not
+legal-hedging research from this session) is proportionate to a tipping/support platform, not
 under-built relative to what a Razorpay-style marketplace would need — full seller KYC would be
 solving a problem this product doesn't actually have. Worth re-weighing the business-name↔VPA
 match idea above against this framing before building it: it might be more effort than the actual
-risk justifies for a donation-style tool, versus something a transaction-brokering platform would
+risk justifies for a tipping-style tool, versus something a transaction-brokering platform would
 need.
