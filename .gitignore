@@ -9,3 +9,5 @@ out/
 .idea/
 
 service-account.json
+
+.claude/worktrees/

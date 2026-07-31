@@ -32,8 +32,9 @@
   --status-failed-bg: #FEE2E2;
   --status-failed-ink: #991B1B;
 
-  /* Semantic — error */
+  /* Semantic — error / success */
   --error-ink: #B91C1C;
+  --success: #059669;
 
   /* Spacing */
   --radius-sm:  4px;
@@ -698,14 +699,6 @@ body {
 
 /* ── Media Queries ────────────────────────────────────────────── */
 
-/* ── Success Grid (Overlay) ──────────────────────────────────── */
-.success-grid {
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 20px;
-  margin-bottom: 32px;
-}
-
 /* ── Tablet (≤ 992px) ────────────────────────────────────────── */
 @media (max-width: 992px) {
   .container { padding: 0 24px; }
@@ -755,10 +748,6 @@ body {
   .cta-card { padding: 48px 32px; }
   .cta-card h2 { font-size: 32px; }
 
-  /* Success Grid (inside overlay) */
-  .success-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ── Mobile (≤ 768px) ────────────────────────────────────────── */
@@ -827,10 +816,6 @@ body {
     text-align: center;
   }
 
-  /* Success overlay */
-  .success-grid {
-    grid-template-columns: 1fr !important;
-  }
 }
 
 /* ── Small phones (≤ 480px) ──────────────────────────────────── */
@@ -845,16 +830,5 @@ body {
   .cta-card h2 { font-size: 22px; }
 }
 
-/* ── Legacy keyframes ─────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  html {
-    scroll-behavior: auto;
-  }
-}
 
 

@@ -221,7 +221,7 @@ export default function QrCard({ vpa, businessName, amount, remarkCode, embedMod
                 <button onClick={copyLink}
                   style={{
                     width: '100%',
-                    background: copied ? '#10B981' : 'var(--ink-1)',
+                    background: copied ? 'var(--success)' : 'var(--ink-1)',
                     color: '#fff',
                     border: 'none',
                     borderRadius: 10,

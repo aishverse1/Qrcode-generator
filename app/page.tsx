@@ -107,6 +107,14 @@ function IconCheck() {
   )
 }
 
+function IconX() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  )
+}
+
 function IconWhatsApp() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -121,6 +129,41 @@ function IconDownload() {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
       <polyline points="7 10 12 15 17 10"/>
       <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+  )
+}
+
+function IconLinkTab() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+    </svg>
+  )
+}
+
+function IconCodeTab() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="16 18 22 12 16 6"/>
+      <polyline points="8 6 2 12 8 18"/>
+    </svg>
+  )
+}
+
+function IconBoltTab() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  )
+}
+
+function IconGearTab() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
     </svg>
   )
 }
@@ -179,7 +222,7 @@ function FormCard({ visible, onSuccess }: { visible: boolean; onSuccess: (data: 
         setLoading(false)
       }, 300)
     } catch {
-      setError('Something went wrong.'); setLoading(false)
+      setError("Couldn't create your link — check your connection and try again."); setLoading(false)
     }
   }
 
@@ -220,7 +263,7 @@ function FormCard({ visible, onSuccess }: { visible: boolean; onSuccess: (data: 
           ].map((row, i) => (
             <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 16px', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none' }}>
               <span style={{ fontSize: 13, color: 'var(--ink-3)', fontWeight: 500 }}>{row.label}</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: row.green ? '#059669' : 'var(--ink-1)', fontFamily: row.mono ? 'monospace' : 'inherit', background: row.mono ? '#F5F5F5' : 'transparent', padding: row.mono ? '2px 7px' : '0', borderRadius: row.mono ? 6 : 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: row.green ? 'var(--success)' : 'var(--ink-1)', fontFamily: row.mono ? 'monospace' : 'inherit', background: row.mono ? '#F5F5F5' : 'transparent', padding: row.mono ? '2px 7px' : '0', borderRadius: row.mono ? 6 : 0 }}>
                 {row.val}
               </span>
             </div>
@@ -272,8 +315,8 @@ function FormCard({ visible, onSuccess }: { visible: boolean; onSuccess: (data: 
               if (e.key === 'ArrowDown' && hints.length > 0) { e.preventDefault(); document.getElementById('sugg-0')?.focus() }
             }} placeholder="ravi@oksbi" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded={showHints} style={{ ...inputStyle, paddingRight: form.vpa ? 40 : 14, borderColor: vpaTouched && form.vpa && !vpaValid ? 'var(--error-ink)' : 'rgba(0,0,0,0.12)' }} />
             {form.vpa && (
-              <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, fontWeight: 800, color: vpaValid ? '#10B981' : 'var(--error-ink)' }}>
-                {vpaValid ? <IconCheck /> : '✕'}
+              <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, fontWeight: 800, color: vpaValid ? 'var(--success)' : 'var(--error-ink)' }}>
+                {vpaValid ? <IconCheck /> : <IconX />}
               </span>
             )}
             {showHints && (
@@ -337,10 +380,10 @@ function SuccessCodeTabs({ shareUrl, data, upiLink }: { shareUrl: string, data: 
   const origin = getCleanOrigin()
 
   const TABS = [
-    { id: 'link', label: 'Shareable Link', icon: '🔗' },
-    { id: 'html', label: 'HTML', icon: '🌐' },
-    { id: 'js', label: 'JavaScript', icon: '⚡' },
-    { id: 'upi', label: 'UPI Protocol', icon: '⚙️' },
+    { id: 'link', label: 'Shareable Link', icon: <IconLinkTab /> },
+    { id: 'html', label: 'HTML', icon: <IconCodeTab /> },
+    { id: 'js', label: 'JavaScript', icon: <IconBoltTab /> },
+    { id: 'upi', label: 'UPI Protocol', icon: <IconGearTab /> },
   ]
 
   const RAW = [
@@ -417,12 +460,12 @@ function SuccessCodeTabs({ shareUrl, data, upiLink }: { shareUrl: string, data: 
             position: 'absolute', top: 12, right: 12,
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '5px 10px', borderRadius: 6,
-            background: copied ? '#059669' : 'rgba(255,255,255,0.1)',
+            background: copied ? 'var(--success)' : 'rgba(255,255,255,0.1)',
             color: '#fff', border: 'none', fontSize: 10, fontWeight: 600,
             cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s'
           }}
         >
-          {copied ? '✓ Copied' : '⎘ Copy'}
+          {copied ? <><IconCheck /> Copied</> : <><IconLinkTab /> Copy</>}
         </button>
         <div style={{ padding: '16px 12px 16px 16px', overflowX: 'auto', maxWidth: '100%' }}>
           <pre style={{
@@ -443,6 +486,7 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
   const [copied, setCopied] = useState(false)
   const [copiedUpi, setCopiedUpi] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [showEmbed, setShowEmbed] = useState(false)
   const baseUrl = getCleanOrigin()
   const shareUrl = `${baseUrl}/${data.token}`
   const upiLink = buildUpiLink({ vpa: data.vpa, businessName: data.businessName, amount: data.amount, remarkCode: 'UPIDirectPay' })
@@ -485,8 +529,8 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
         </p>
       </div>
 
-      <div className="success-grid">
-        <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+        <div style={{ width: '100%', maxWidth: 360, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
             <div style={{ width: 32, height: 32, background: 'var(--cornflower)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ color: '#fff', fontWeight: 900, fontSize: 14 }}>{data.businessName.charAt(0).toUpperCase()}</span>
@@ -508,12 +552,31 @@ function SuccessCard({ data, onReset }: { data: SuccessData; onReset: () => void
             </button>
           </div>
         </div>
+      </div>
 
-        <div className="success-code-tabs" style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center', minWidth: 0, width: '100%', boxSizing: 'border-box' }}>
-          <div>
-            <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 5 }}>Add snippet to your website</p>
-            <SuccessCodeTabs shareUrl={shareUrl} data={data} upiLink={upiLink} />
-          </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+        <div style={{ width: '100%', maxWidth: 360 }}>
+          <button
+            onClick={() => setShowEmbed(v => !v)}
+            aria-expanded={showEmbed}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, width: '100%',
+              background: 'transparent', border: 'none', padding: '8px 2px',
+              color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 600,
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            <span style={{ display: 'inline-block', transition: 'transform 0.2s var(--ease-out-expo)', transform: showEmbed ? 'rotate(90deg)' : 'none' }}>
+              ▸
+            </span>
+            Embed on your website (for developers)
+          </button>
+          {showEmbed && (
+            <div className="success-code-tabs" style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '16px', marginTop: 8, boxSizing: 'border-box' }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 5 }}>Add snippet to your website</p>
+              <SuccessCodeTabs shareUrl={shareUrl} data={data} upiLink={upiLink} />
+            </div>
+          )}
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -533,7 +596,15 @@ function QrImage({ vpa, businessName, amount }: { vpa: string; businessName: str
       QRCode.toDataURL(upi, { width: 200, margin: 0, color: { dark: '#000000', light: '#FFFFFF' } }).then(setSrc)
     })
   }, [vpa, businessName, amount])
-  if (!src) return <div style={{ width: 160, height: 160 }} />
+  if (!src) return (
+    <div style={{ width: 160, height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+        style={{ animation: 'spin 0.8s linear infinite', color: 'var(--cornflower)' }}>
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity=".25"/>
+        <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity=".8"/>
+      </svg>
+    </div>
+  )
   return <img src={src} alt="QR Code" width={160} height={160} style={{ borderRadius: 4 }} />
 }
 
@@ -704,7 +775,7 @@ export default function Home() {
           boxShadow: successData ? 'none' : '0 24px 60px rgba(11,18,32,0.18)',
           transform: `scale(${isCreating ? 1 : 0.95}) translateY(${isCreating ? 0 : 40}px)`,
           opacity: isCreating ? 1 : 0,
-          transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, opacity 0.6s ease 0.1s, width 0.3s',
+          transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, opacity 0.6s ease 0.1s',
         }}>
           {!successData && <div style={{ height: 4, background: 'var(--cornflower-lighter)' }} />}
 
@@ -726,8 +797,6 @@ export default function Home() {
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>© 2026 UPIDirectPay</span>
           <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block', flexShrink: 0 }} />
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Zero Commission</span>
-          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block', flexShrink: 0 }} />
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Privacy Policy</span>
         </div>
       </div>
 
@@ -795,8 +864,8 @@ export default function Home() {
                     Add your business details
                   </h3>
                   <p>Enter your business name and UPI ID. We validate your VPA format in real-time against supported bank handles.</p>
-                  <div style={{ color: '#10B981', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
-                    <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10B981'}}></span> Real-time VPA validation
+                  <div style={{ color: 'var(--success)', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
+                    <span style={{width: 6, height: 6, borderRadius: '50%', background: 'var(--success)'}}></span> Real-time VPA validation
                   </div>
                 </div>
               </div>
@@ -806,8 +875,8 @@ export default function Home() {
                 <div className="step-content">
                   <h3>Get your QR and payment link</h3>
                   <p>Your unique QR code and shareable link are ready instantly.</p>
-                  <div style={{ color: '#10B981', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
-                    <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10B981'}}></span> NPCI-compliant UPI deep-link
+                  <div style={{ color: 'var(--success)', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
+                    <span style={{width: 6, height: 6, borderRadius: '50%', background: 'var(--success)'}}></span> No setup — ready in seconds
                   </div>
                 </div>
               </div>
@@ -817,8 +886,8 @@ export default function Home() {
                 <div className="step-content">
                   <h3>Share it and get paid</h3>
                   <p>Send the link over WhatsApp or display the QR. Customers pay via any UPI app — funds go directly to your bank account.</p>
-                  <div style={{ color: '#10B981', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
-                    <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10B981'}}></span> GPay · PhonePe · Paytm · BHIM
+                  <div style={{ color: 'var(--success)', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
+                    <span style={{width: 6, height: 6, borderRadius: '50%', background: 'var(--success)'}}></span> GPay · PhonePe · Paytm · BHIM
                   </div>
                 </div>
               </div>
@@ -845,9 +914,9 @@ export default function Home() {
                   
                   <div style={{ marginBottom: 12 }}>
                     <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-3)', marginBottom: 6, display: 'block' }}>UPI ID / VPA</label>
-                    <div style={{ border: '2px solid #10B981', borderRadius: 8, padding: '12px 14px', fontSize: 14, fontWeight: 600, display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ border: '2px solid var(--success)', borderRadius: 8, padding: '12px 14px', fontSize: 14, fontWeight: 600, display: 'flex', justifyContent: 'space-between' }}>
                       rajesh@okhdfcbank
-                      <span style={{ color: '#10B981', fontWeight: 800 }}>✓</span>
+                      <span style={{ color: 'var(--success)', fontWeight: 800 }}>✓</span>
                     </div>
                   </div>
                   
@@ -891,7 +960,7 @@ export default function Home() {
               {/* Visual 3 */}
               <div className={`visual-frame ${activeStep === 2 ? 'active' : ''}`}>
                  <div style={{ position: 'absolute', top: -15, right: -15, zIndex: 10, background: '#fff', borderRadius: 12, padding: '12px 16px', boxShadow: '0 12px 32px rgba(11,18,32,0.12)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                   <div style={{ width: 28, height: 28, background: '#ECFDF5', color: '#059669', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14 }}>✓</div>
+                   <div style={{ width: 28, height: 28, background: '#ECFDF5', color: 'var(--success)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14 }}>✓</div>
                    <div>
                      <div style={{ fontWeight: 800, fontSize: 14, color: '#111827' }}>₹500 received</div>
                      <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>Just now via GPay</div>
