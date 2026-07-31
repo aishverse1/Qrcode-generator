@@ -17,19 +17,16 @@ export const op = (v: string) => <span style={{ color: '#89DDFF' }}>{v}</span>
 function HtmlSnippet({ origin }: { origin: string }) {
   return (
     <>
-      {cm('<!-- Add a UPIDirectPay payment button -->')}{'\n'}
-      {op('<')}{tg('a')} {at('href')}{op('=')}{st(`"${origin}/pay/a8k3m9x"`)}{'\n'}
-      {'   '}{at('style')}{op('=')}{st('"display:inline-flex;align-items:center;')}{'\n'}
-      {st('          gap:8px;padding:14px 28px;')}{'\n'}
-      {st('          background:#6775E8;color:#fff;')}{'\n'}
-      {st('          border-radius:12px;font-weight:700;')}{'\n'}
-      {st('          text-decoration:none;"')}{op('>')}{'\n'}
-      {'  Pay ₹500.00 →'}{'\n'}
-      {op('</')}{tg('a')}{op('>')}{'\n'}
+      {cm('<!-- Load the embed SDK -->')}{'\n'}
+      {op('<')}{tg('script')} {at('src')}{op('=')}{st(`"${origin}/api/embed"`)} {at('defer')}{op('>')}{op('</')}{tg('script')}{op('>')}{'\n'}
       {'\n'}
-      {cm('<!-- Or embed the QR directly -->')}{'\n'}
-      {op('<')}{tg('img')} {at('src')}{op('=')}{st(`"${origin}/qr/a8k3m9x"`)}{'\n'}
-      {'     '}{at('alt')}{op('=')}{st('"Scan to pay"')} {at('width')}{op('=')}{st('"200"')} {at('height')}{op('=')}{st('"200"')} {op('/>')}
+      {cm('<!-- Trigger it from any button -->')}{'\n'}
+      {op('<')}{tg('button')} {at('id')}{op('=')}{st('"pay-btn"')}{op('>')}Pay ₹500.00{op('</')}{tg('button')}{op('>')}{'\n'}
+      {op('<')}{tg('script')}{op('>')}{'\n'}
+      {'  '}document.{fn('getElementById')}({st("'pay-btn'")}).{fn('addEventListener')}({st("'click'")}, {kw('function')}() {'{'}{'\n'}
+      {'    '}MyPay.{fn('open')}({'{ '}{at('slug')}{op(':')} {st("'0sj7mr'")}{' }'});{'\n'}
+      {'  '}{'}'});{'\n'}
+      {op('</')}{tg('script')}{op('>')}
     </>
   )
 }
@@ -37,31 +34,23 @@ function HtmlSnippet({ origin }: { origin: string }) {
 function JsSnippet() {
   return (
     <>
-      {cm('// Generate a UPI payment link')}{'\n'}
-      {kw('function')} {fn('buildUpiLink')}({'{ '}{at('vpa')}{', '}{at('name')}{', '}{at('amount')}{', '}{at('remark')}{' }'}) {'{'}{'\n'}
-      {'  '}{kw('const')} params {op('=')} {kw('new')} {fn('URLSearchParams')}({'{'}{'\n'}
-      {'    '}{at('pa')}{op(':')} vpa,{'\n'}
-      {'    '}{at('pn')}{op(':')} name,{'\n'}
-      {'    '}{at('cu')}{op(':')} {st("'INR'")},{'\n'}
-      {'    '}{at('tn')}{op(':')} remark {op('||')} {st("'Payment'")},{'\n'}
-      {'  }'});{'\n'}
-      {'  '}{kw('if')} (amount) params.{fn('set')}({st("'am'")}, amount.{fn('toFixed')}({nm('2')}));{'\n'}
-      {'  '}{kw('return')} {st('`upi://pay?${params}`')};{'\n'}
-      {'}'}{'\n'}
+      {cm('// The slug comes from POST /api/merchant/create')}{'\n'}
+      {cm('// (or straight from your shareable link\'s path)')}{'\n'}
       {'\n'}
-      {cm('// Generate QR code')}{'\n'}
-      {kw('import')} QRCode {kw('from')} {st("'qrcode'")};{'\n'}
-      {'\n'}
-      {kw('const')} link {op('=')} {fn('buildUpiLink')}({'{'}{'\n'}
-      {'  '}{at('vpa')}{op(':')}    {st("'ravi@oksbi'")},{'\n'}
-      {'  '}{at('name')}{op(':')}   {st("\"Ravi's Tea Stall\"")},{'\n'}
-      {'  '}{at('amount')}{op(':')} {nm('20')},{'\n'}
-      {'  '}{at('remark')}{op(':')} {st("'UPAY-7X2K'")},{'\n'}
+      {kw('const')} res {op('=')} {kw('await')} {fn('fetch')}({st("'/api/merchant/create'")}, {'{'}{'\n'}
+      {'  '}{at('method')}{op(':')} {st("'POST'")},{'\n'}
+      {'  '}{at('headers')}{op(':')} {'{ '}{st("'Content-Type'")}{op(':')} {st("'application/json'")} {'}'},{'\n'}
+      {'  '}{at('body')}{op(':')} JSON.{fn('stringify')}({'{'}{'\n'}
+      {'    '}{at('vpa')}{op(':')} {st("'ravi@oksbi'")},{'\n'}
+      {'    '}{at('businessName')}{op(':')} {st("\"Ravi's Tea Stall\"")},{'\n'}
+      {'    '}{at('amount')}{op(':')} {nm('20')},{'\n'}
+      {'  }'}),{'\n'}
       {'}'});{'\n'}
+      {kw('const')} {'{ '}token{' }'} {op('=')} {kw('await')} res.{fn('json')}();{'\n'}
       {'\n'}
-      {kw('const')} qr {op('=')} {kw('await')} QRCode.{fn('toDataURL')}(link, {'{'}{'\n'}
-      {'  '}{at('width')}{op(':')} {nm('400')}, {at('margin')}{op(':')} {nm('2')}{'\n'}
-      {'}'});
+      {cm('// Open the payment flow in a modal (desktop) or')}{'\n'}
+      {cm('// direct redirect (mobile) — MyPay is exposed by /api/embed')}{'\n'}
+      MyPay.{fn('open')}({'{ '}{at('slug')}{op(':')} token {'}'});
     </>
   )
 }
@@ -73,7 +62,7 @@ function UpiSnippet() {
       {'         '}{op('&')}{at('pn')}{op('=')}{st("Ravi%27s+Tea+Stall")}{'\n'}
       {'         '}{op('&')}{at('am')}{op('=')}{nm('20.00')}{'\n'}
       {'         '}{op('&')}{at('cu')}{op('=')}{st('INR')}{'\n'}
-      {'         '}{op('&')}{at('tn')}{op('=')}{st('UPAY-7X2K')}{'\n'}
+      {'         '}{op('&')}{at('tn')}{op('=')}{st('UPIDirectPay')}{'\n'}
       {'\n'}
       {cm('Parameters:')}{'\n'}
       {'  '}{at('pa')}{'  →  Payee VPA (your UPI ID)'}{'\n'}
@@ -128,9 +117,9 @@ export default function CodeSnippetDemo() {
 
   const RAW = [
     `${origin}/0sj7mr\n\n<a href="${origin}/0sj7mr">Pay Now</a>`,
-    `<!-- Add a UPIDirectPay payment button -->\n<a href="${origin}/pay/a8k3m9x"\n   style="display:inline-flex;align-items:center;\n          gap:8px;padding:14px 28px;\n          background:#6775E8;color:#fff;\n          border-radius:12px;font-weight:700;\n          text-decoration:none;">\n  Pay ₹500.00 →\n</a>\n\n<!-- Or embed the QR directly -->\n<img src="${origin}/qr/a8k3m9x"\n     alt="Scan to pay" width="200" height="200" />`,
-    `// Generate a UPI payment link\nfunction buildUpiLink({ vpa, name, amount, remark }) {\n  const params = new URLSearchParams({\n    pa: vpa,\n    pn: name,\n    cu: 'INR',\n    tn: remark || 'Payment',\n  });\n  if (amount) params.set('am', amount.toFixed(2));\n  return \`upi://pay?\${params}\`;\n}\n\n// Generate QR code\nimport QRCode from 'qrcode';\n\nconst link = buildUpiLink({\n  vpa:    'ravi@oksbi',\n  name:   "Ravi's Tea Stall",\n  amount: 20,\n  remark: 'UPAY-7X2K',\n});\n\nconst qr = await QRCode.toDataURL(link, {\n  width: 400, margin: 2\n});`,
-    `upi://pay?pa=ravi@oksbi\n         &pn=Ravi%27s+Tea+Stall\n         &am=20.00\n         &cu=INR\n         &tn=UPAY-7X2K\n\nParameters:\n  pa  →  Payee VPA (your UPI ID)\n  pn  →  Payee display name\n  am  →  Amount in INR (optional)\n  cu  →  Currency — always INR\n  tn  →  Transaction note / remark\n\nWorks with: GPay · PhonePe · Paytm · BHIM\nFollows NPCI UPI deep-link specification`,
+    `<!-- Load the embed SDK -->\n<script src="${origin}/api/embed" defer></script>\n\n<!-- Trigger it from any button -->\n<button id="pay-btn">Pay ₹500.00</button>\n<script>\n  document.getElementById('pay-btn').addEventListener('click', function() {\n    MyPay.open({ slug: '0sj7mr' });\n  });\n</script>`,
+    `// The token comes from POST /api/merchant/create\n// (or straight from your shareable link's path)\n\nconst res = await fetch('/api/merchant/create', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    vpa: 'ravi@oksbi',\n    businessName: "Ravi's Tea Stall",\n    amount: 20,\n  }),\n});\nconst { token } = await res.json();\n\n// Open the payment flow in a modal (desktop) or\n// direct redirect (mobile) — MyPay is exposed by /api/embed\nMyPay.open({ slug: token });`,
+    `upi://pay?pa=ravi@oksbi\n         &pn=Ravi%27s+Tea+Stall\n         &am=20.00\n         &cu=INR\n         &tn=UPIDirectPay\n\nParameters:\n  pa  →  Payee VPA (your UPI ID)\n  pn  →  Payee display name\n  am  →  Amount in INR (optional)\n  cu  →  Currency — always INR\n  tn  →  Transaction note / remark\n\nWorks with: GPay · PhonePe · Paytm · BHIM\nFollows NPCI UPI deep-link specification`,
   ]
 
   useEffect(() => {

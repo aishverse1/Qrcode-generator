@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { buildUpiLink } from '@/lib/upi'
+import { buildUpiLink, UPI_APPS } from '@/lib/upi'
 
 interface MobileRedirectProps {
   vpa: string
@@ -12,45 +12,6 @@ interface MobileRedirectProps {
 
 type RedirectState = 'launching' | 'fallback'
 
-const UPI_APPS = [
-  {
-    name: 'Google Pay',
-    shortName: 'GPay',
-    brandColor: '#4285F4',
-    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
-      const qs = `pa=${vpa}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
-      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end` : `gpay://upi/pay?${qs}`
-    }
-  },
-  {
-    name: 'PhonePe',
-    shortName: 'PhonePe',
-    brandColor: '#5F259F',
-    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
-      const qs = `pa=${vpa}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
-      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=com.phonepe.app;end` : `phonepe://pay?${qs}`
-    }
-  },
-  {
-    name: 'Paytm',
-    shortName: 'Paytm',
-    brandColor: '#00B9F1',
-    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
-      const qs = `pa=${vpa}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
-      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=net.one97.paytm;end` : `paytmmp://pay?${qs}`
-    }
-  },
-  {
-    name: 'BHIM UPI',
-    shortName: 'BHIM',
-    brandColor: '#00784A',
-    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
-      const qs = `pa=${vpa}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
-      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=in.org.npci.upiapp;end` : buildUpiLink({ vpa, businessName: name, amount, remarkCode: 'UPIDirectPay' })
-    }
-  },
-]
-
 export default function MobileRedirect({ vpa, businessName, amount, remarkCode }: MobileRedirectProps) {
   const [state, setState] = useState<RedirectState>('launching')
   const [countdown, setCountdown] = useState(3)
@@ -59,8 +20,8 @@ export default function MobileRedirect({ vpa, businessName, amount, remarkCode }
   const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent)
   const initial = businessName.charAt(0).toUpperCase()
 
-  const universalLink = isAndroid 
-    ? `intent://pay?pa=${vpa}&pn=${encodeURIComponent(businessName)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}&tn=${encodeURIComponent(remarkCode)}#Intent;scheme=upi;end`
+  const universalLink = isAndroid
+    ? `intent://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(businessName)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}&tn=${encodeURIComponent(remarkCode)}#Intent;scheme=upi;end`
     : upiLink
 
   useEffect(() => {

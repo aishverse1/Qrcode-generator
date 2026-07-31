@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation'
-import { verifySignedPaymentToken } from '@/lib/token'
+import { headers } from 'next/headers'
+import { verifyPaymentToken } from '@/lib/token'
+import { MOBILE_UA_REGEX } from '@/lib/upi'
 import QrCard from '@/components/QrCard'
+import MobileRedirect from '@/components/MobileRedirect'
 import type { Metadata } from 'next'
 
 interface Props {
@@ -14,7 +17,10 @@ const RESERVED_PATHS = new Set([
 ])
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const data = await verifySignedPaymentToken(params.slug)
+  if (RESERVED_PATHS.has(params.slug.toLowerCase())) {
+    return { title: 'Payment Not Found — UPIDirectPay' }
+  }
+  const data = await verifyPaymentToken(params.slug)
   if (!data) return { title: 'Payment Not Found — UPIDirectPay' }
   return {
     title: `Pay ${data.businessName} — UPIDirectPay`,
@@ -32,7 +38,7 @@ export default async function SlugPage({ params, searchParams }: Props) {
   }
 
   // Fetch payment data from Firestore (server-side — VPA never in URL)
-  const data = await verifySignedPaymentToken(slug)
+  const data = await verifyPaymentToken(slug)
   if (!data) notFound()
 
   const { vpa, businessName, amount, remarkCode } = data
@@ -52,7 +58,22 @@ export default async function SlugPage({ params, searchParams }: Props) {
     )
   }
 
-  // Desktop & Mobile: full QR card with dark background
+  // Mobile: attempt the UPI deep link client-side, with a visible fallback
+  // if no app handles it (see MobileRedirect)
+  const userAgent = headers().get('user-agent') || ''
+  const isMobile = MOBILE_UA_REGEX.test(userAgent)
+  if (isMobile) {
+    return (
+      <MobileRedirect
+        vpa={vpa}
+        businessName={businessName}
+        amount={amount}
+        remarkCode={remarkCode}
+      />
+    )
+  }
+
+  // Desktop: full QR card with dark background
   return (
     <QrCard
       vpa={vpa}

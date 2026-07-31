@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSignedPaymentToken } from '@/lib/token'
+import { createPaymentToken } from '@/lib/token'
 import { isValidVpa } from '@/lib/upi'
 
 export async function POST(req: NextRequest) {
@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Amount must be a positive number' }, { status: 400 })
     }
 
-    // Create signed payment token stored in Firestore (6-char slug)
-    const { token } = await createSignedPaymentToken({
+    // Create a payment token stored in Firestore (8-char slug)
+    const { token } = await createPaymentToken({
       vpa: vpa.trim(),
       businessName: businessName.trim(),
       amount: parsedAmount,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { buildUpiLink, getCleanOrigin } from '@/lib/upi'
+import { buildUpiLink, getCleanOrigin, UPI_APPS } from '@/lib/upi'
 import Image from 'next/image'
 
 // Import logos from root directory
@@ -24,41 +24,6 @@ const APP_LOGOS: Record<string, any> = {
   'Paytm': paytmLogo,
   'BHIM': bhimLogo,
 }
-
-const UPI_APPS = [
-  {
-    name: 'GPay',
-    brandColor: '#4285F4',
-    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
-      const qs = `pa=${vpa}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
-      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end` : `gpay://upi/pay?${qs}`
-    }
-  },
-  {
-    name: 'PhonePe',
-    brandColor: '#5F259F',
-    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
-      const qs = `pa=${vpa}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
-      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=com.phonepe.app;end` : `phonepe://pay?${qs}`
-    }
-  },
-  {
-    name: 'Paytm',
-    brandColor: '#00B9F1',
-    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
-      const qs = `pa=${vpa}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
-      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=net.one97.paytm;end` : `paytmmp://pay?${qs}`
-    }
-  },
-  {
-    name: 'BHIM',
-    brandColor: '#00784A',
-    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
-      const qs = `pa=${vpa}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
-      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=in.org.npci.upiapp;end` : buildUpiLink({ vpa, businessName: name, amount, remarkCode: 'UPIDirectPay' })
-    }
-  },
-]
 
 function IconLink() {
   return (
@@ -194,7 +159,7 @@ export default function QrCard({ vpa, businessName, amount, remarkCode, embedMod
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {UPI_APPS.map(app => (
-                    <button key={app.name}
+                    <button key={app.shortName}
                       onClick={() => {
                         const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent)
                         window.location.href = app.buildLink(vpa, businessName, amount, isAndroid)
@@ -216,13 +181,13 @@ export default function QrCard({ vpa, businessName, amount, remarkCode, embedMod
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         flexShrink: 0, overflow: 'hidden', padding: 4
                       }}>
-                        {APP_LOGOS[app.name] ? (
-                          <Image src={APP_LOGOS[app.name]} alt={app.name} width={22} height={22} style={{ objectFit: 'contain' }} />
+                        {APP_LOGOS[app.shortName] ? (
+                          <Image src={APP_LOGOS[app.shortName]} alt={app.shortName} width={22} height={22} style={{ objectFit: 'contain' }} />
                         ) : (
                           <span style={{ color: 'var(--ink-1)', fontWeight: 900, fontSize: 13 }}>₹</span>
                         )}
                       </div>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{app.name}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{app.shortName}</span>
                     </button>
                   ))}
                 </div>
@@ -234,8 +199,8 @@ export default function QrCard({ vpa, businessName, amount, remarkCode, embedMod
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
                 <button onClick={() => {
                     const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent)
-                    const universalLink = isAndroid 
-                      ? `intent://pay?pa=${vpa}&pn=${encodeURIComponent(businessName)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}&tn=${encodeURIComponent(remarkCode)}#Intent;scheme=upi;end`
+                    const universalLink = isAndroid
+                      ? `intent://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(businessName)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}&tn=${encodeURIComponent(remarkCode)}#Intent;scheme=upi;end`
                       : upiLink
                     window.location.href = universalLink
                   }}
@@ -282,8 +247,8 @@ export default function QrCard({ vpa, businessName, amount, remarkCode, embedMod
               <div>
                 <button onClick={() => {
                     const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent)
-                    const universalLink = isAndroid 
-                      ? `intent://pay?pa=${vpa}&pn=${encodeURIComponent(businessName)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}&tn=${encodeURIComponent(remarkCode)}#Intent;scheme=upi;end`
+                    const universalLink = isAndroid
+                      ? `intent://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(businessName)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}&tn=${encodeURIComponent(remarkCode)}#Intent;scheme=upi;end`
                       : upiLink
                     window.location.href = universalLink
                   }}

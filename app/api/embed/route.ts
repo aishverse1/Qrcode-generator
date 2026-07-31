@@ -15,7 +15,7 @@ import { NextRequest, NextResponse } from 'next/server'
  *   </script>
  *
  * Legacy widget mode (auto-renders floating button):
- *   <script src="/api/embed" data-pa="merchant@upi" data-pn="Name" defer></script>
+ *   <script src="/api/embed" data-slug="abc123" defer></script>
  */
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || ''
@@ -72,26 +72,13 @@ const EMBED_SCRIPT = `
     if (!opts) { console.warn('[MyPay] Missing options'); return; }
 
     var slug = opts.slug || '';
-    var pa   = opts.pa   || '';
-    var pn   = opts.pn   || '';
-    var am   = opts.am   || '';
+    if (!slug) { console.warn('[MyPay] Provide a slug'); return; }
 
-    var iframeSrc;
-    if (slug) {
-      iframeSrc = BASE + '/' + encodeURIComponent(slug) + '?embed=true';
-    } else if (pa) {
-      iframeSrc = BASE + '/pay?pa=' + encodeURIComponent(pa) + '&pn=' + encodeURIComponent(pn) + (am ? '&am=' + encodeURIComponent(am) : '') + '&embed=true';
-    } else {
-      console.warn('[MyPay] Provide slug or pa'); return;
-    }
+    var iframeSrc = BASE + '/' + encodeURIComponent(slug) + '?embed=true';
 
     // On mobile, go direct instead of iframe (UPI deep links need native handling)
-    if (isMobile() && slug) {
+    if (isMobile()) {
       window.location.href = BASE + '/' + encodeURIComponent(slug);
-      return;
-    }
-    if (isMobile() && pa) {
-      window.location.href = 'upi://pay?pa=' + encodeURIComponent(pa) + '&pn=' + encodeURIComponent(pn) + '&cu=INR' + (am ? '&am=' + am : '');
       return;
     }
 
@@ -140,19 +127,16 @@ const EMBED_SCRIPT = `
   }
 
   // ── Legacy widget mode ────────────────────────────────────
-  // Auto-renders a floating button if data-pa or data-token is present on the script tag.
+  // Auto-renders a floating button if data-slug or data-token is present on the script tag.
 
   function initLegacyWidget() {
     var script = document.querySelector('script[src*="/api/embed"]');
     if (!script) return;
 
-    var pa    = script.getAttribute('data-pa');
-    var pn    = script.getAttribute('data-pn') || 'Merchant';
-    var am    = script.getAttribute('data-am') || '';
     var token = script.getAttribute('data-token') || '';
     var slug  = script.getAttribute('data-slug') || token;
 
-    if (!pa && !slug) return; // No config, pure SDK mode
+    if (!slug) return; // No config, pure SDK mode
 
     injectStyles();
 
@@ -185,8 +169,7 @@ const EMBED_SCRIPT = `
       btn.style.boxShadow = '0 4px 20px rgba(37,99,235,0.45)';
     });
     btn.addEventListener('click', function () {
-      if (slug) open({ slug: slug });
-      else open({ pa: pa, pn: pn, am: am });
+      open({ slug: slug });
     });
 
     container.appendChild(btn);

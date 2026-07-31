@@ -33,11 +33,15 @@ async function getDb() {
 
 // ── Token create / verify ─────────────────────────────────
 
+const TOKEN_LENGTH = 8
+const MAX_CREATE_ATTEMPTS = 3
+
 /**
  * Create a payment token and store data in Firestore.
- * URL becomes /pay/{token} where token is an 8-char random string.
+ * URL becomes /{token}. Not cryptographically signed — the token is just
+ * an unguessable Firestore document id; "create" means "wrote this doc".
  */
-export async function createSignedPaymentToken(data: {
+export async function createPaymentToken(data: {
   vpa: string
   businessName: string
   amount: number | null
@@ -45,21 +49,30 @@ export async function createSignedPaymentToken(data: {
   merchantUid?: string
 }): Promise<{ token: string }> {
   const db = await getDb()
-  const token = nanoid(6)
 
-  await db.collection('payments').doc(token).set({
-    ...data,
-    createdAt: Date.now(),
-  })
-
-  return { token }
+  for (let attempt = 0; attempt < MAX_CREATE_ATTEMPTS; attempt++) {
+    const token = nanoid(TOKEN_LENGTH)
+    try {
+      // .create() (not .set()) fails if the doc already exists, so a
+      // collision retries with a fresh token instead of overwriting data.
+      await db.collection('payments').doc(token).create({
+        ...data,
+        createdAt: Date.now(),
+      })
+      return { token }
+    } catch (err: any) {
+      if (err?.code === 6 /* ALREADY_EXISTS */ && attempt < MAX_CREATE_ATTEMPTS - 1) continue
+      throw err
+    }
+  }
+  throw new Error('Failed to generate a unique payment token')
 }
 
 /**
- * Verify a payment token by looking it up in Firestore.
+ * Look up a payment token in Firestore.
  * Returns the payment data if found, null otherwise.
  */
-export async function verifySignedPaymentToken(token: string): Promise<{
+export async function verifyPaymentToken(token: string): Promise<{
   vpa: string
   businessName: string
   amount: number | null

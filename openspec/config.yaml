@@ -1,0 +1,47 @@
+schema: spec-driven
+
+context: |
+  UPIDirectPay (a.k.a. "upay"): Next.js 14 (App Router) + TypeScript app that generates
+  shareable UPI (India's Unified Payments Interface) payment links and QR codes, deep-linking
+  into GPay/PhonePe/Paytm/BHIM. No payment gateway — links point straight at a merchant's VPA.
+  Persistence: Firestore, via firebase-admin server-side (create/verify token) and the public
+  Firestore REST API from middleware (mobile redirect lookup, no admin SDK there).
+  Four capabilities exist today, each documented under specs/: payment-link-creation
+  (POST /api/merchant/create), slug-payment-page (/{slug} + middleware mobile redirect +
+  QrCard), adhoc-pay-link (/pay + /api/pay, a parallel query-param-only path with no
+  persistence), embed-widget (/api/embed, the MyPay.open() SDK for third-party sites).
+  Known gaps (see specs for detail, tracked as follow-up changes, not yet fixed): no VPA
+  ownership verification at link creation, no payment success/failure confirmation (UPI P2P
+  has no server callback), remarkCode is hardcoded instead of per-link, several UI trust
+  badges ("Secured by NPCI", "Verified") don't reflect real verification.
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

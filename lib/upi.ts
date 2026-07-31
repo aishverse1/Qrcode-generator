@@ -9,11 +9,12 @@ export function buildUpiLink(params: {
   remarkCode: string
 }): string {
   const { vpa, businessName, amount, remarkCode } = params
+  const encodedVpa = encodeURIComponent(vpa)
   const encodedName = encodeURIComponent(businessName)
   const encodedRemark = encodeURIComponent(remarkCode)
 
   // NPCI UPI deep-link format
-  let link = `upi://pay?pa=${vpa}&pn=${encodedName}&tn=${encodedRemark}&cu=INR`
+  let link = `upi://pay?pa=${encodedVpa}&pn=${encodedName}&tn=${encodedRemark}&cu=INR`
   if (amount && amount > 0) {
     link += `&am=${amount.toFixed(2)}`
   }
@@ -25,14 +26,50 @@ export function isValidVpa(vpa: string): boolean {
 }
 
 export function getCleanOrigin(): string {
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL
   if (typeof window === 'undefined') return 'https://upidirectpay.com'
-  let origin = window.location.origin
-  // Clean up long Vercel preview URLs to short project URLs
-  if (origin.includes('-nachiyar-s-projects.vercel.app')) {
-    origin = origin.replace(/-[a-z0-9]+-nachiyar-s-projects\.vercel\.app$/, '.vercel.app')
-  }
-  return origin
+  return window.location.origin
 }
+
+/** Per-app UPI intent-link builders, shared by QrCard and MobileRedirect. */
+export const UPI_APPS = [
+  {
+    name: 'Google Pay',
+    shortName: 'GPay',
+    brandColor: '#4285F4',
+    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
+      const qs = `pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
+      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end` : `gpay://upi/pay?${qs}`
+    }
+  },
+  {
+    name: 'PhonePe',
+    shortName: 'PhonePe',
+    brandColor: '#5F259F',
+    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
+      const qs = `pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
+      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=com.phonepe.app;end` : `phonepe://pay?${qs}`
+    }
+  },
+  {
+    name: 'Paytm',
+    shortName: 'Paytm',
+    brandColor: '#00B9F1',
+    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
+      const qs = `pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
+      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=net.one97.paytm;end` : `paytmmp://pay?${qs}`
+    }
+  },
+  {
+    name: 'BHIM UPI',
+    shortName: 'BHIM',
+    brandColor: '#00784A',
+    buildLink: (vpa: string, name: string, amount: number | null, isAndroid: boolean) => {
+      const qs = `pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&cu=INR${amount ? `&am=${amount.toFixed(2)}` : ''}`
+      return isAndroid ? `intent://pay?${qs}#Intent;scheme=upi;package=in.org.npci.upiapp;end` : buildUpiLink({ vpa, businessName: name, amount, remarkCode: 'UPIDirectPay' })
+    }
+  },
+]
 
 export const BANK_HANDLES = [
   // Google Pay / PhonePe / Paytm top handles
@@ -64,10 +101,3 @@ export const BANK_HANDLES = [
   '@freecharge',
 ]
 
-export function generateRemarkCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  const suffix = Array.from({ length: 4 }, () =>
-    chars[Math.floor(Math.random() * chars.length)]
-  ).join('')
-  return `UPAY-${suffix}`
-}

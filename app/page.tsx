@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { isValidVpa, BANK_HANDLES, buildUpiLink, getCleanOrigin } from '@/lib/upi'
+import { getRecentLinks, addRecentLink, RecentLink } from '@/lib/linkHistory'
 import CodeSnippetDemo, { cm, kw, st, fn, nm, tg, at, op } from '@/components/CodeSnippetDemo'
 
 /* ── 3D Tilt Hook (smooth lerp + RAF) ────────────────────────── */
@@ -593,7 +594,22 @@ export default function Home() {
   const [activeStep, setActiveStep] = useState(0)
   const [successData, setSuccessData] = useState<SuccessData | null>(null)
   const [isCreating, setIsCreating] = useState(false)
-  
+  const [recentLinks, setRecentLinks] = useState<RecentLink[]>([])
+
+  useEffect(() => {
+    setRecentLinks(getRecentLinks())
+  }, [])
+
+  function handleCreateSuccess(data: SuccessData) {
+    setSuccessData(data)
+    setRecentLinks(addRecentLink({
+      token: data.token,
+      businessName: data.businessName,
+      amount: data.amount,
+      createdAt: Date.now(),
+    }))
+  }
+
   // Track scroll for nav
   useEffect(() => {
     const handleScroll = () => {
@@ -695,7 +711,7 @@ export default function Home() {
           {successData ? (
             <SuccessCard data={successData} onReset={() => setSuccessData(null)} />
           ) : (
-            <FormCard visible={isCreating} onSuccess={(data) => setSuccessData(data)} />
+            <FormCard visible={isCreating} onSuccess={handleCreateSuccess} />
           )}
         </div>
 
@@ -710,8 +726,6 @@ export default function Home() {
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>© 2026 UPIDirectPay</span>
           <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block', flexShrink: 0 }} />
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Zero Commission</span>
-          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block', flexShrink: 0 }} />
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Secured by NPCI</span>
           <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', display: 'inline-block', flexShrink: 0 }} />
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Privacy Policy</span>
         </div>
@@ -791,7 +805,7 @@ export default function Home() {
                 <div className="step-indicator">02</div>
                 <div className="step-content">
                   <h3>Get your QR and payment link</h3>
-                  <p>Your unique QR code and shareable link are ready instantly. Each transaction gets a trackable remark code for reconciliation.</p>
+                  <p>Your unique QR code and shareable link are ready instantly.</p>
                   <div style={{ color: '#10B981', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
                     <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10B981'}}></span> NPCI-compliant UPI deep-link
                   </div>
@@ -858,19 +872,17 @@ export default function Home() {
                         <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>rajesh@okhdfcbank</span>
                       </div>
                     </div>
-                    <span style={{ background: '#ECFDF5', color: '#059669', fontSize: 10, fontWeight: 700, padding: '4px 8px', borderRadius: 6 }}>✓ Verified</span>
                   </div>
-                  
+
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
                     <div style={{ width: 140, height: 140, border: '3px solid #6775E8', borderRadius: 20, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
                       <QrImage vpa="demo" businessName="demo" amount={null} />
                     </div>
                     <div style={{ fontSize: 24, fontWeight: 800 }}>₹500.00</div>
-                    <div style={{ background: '#EEF2FF', color: '#6775E8', fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 100, marginTop: 8 }}>UPAY-7X2K</div>
                   </div>
                   
                   <div style={{ background: '#F8FAFC', border: '1px solid rgba(0,0,0,0.05)', borderRadius: 12, padding: '8px 8px 8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--ink-3)' }}>upidirectpay.in/pay/488dt3h</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--ink-3)' }}>upidirectpay.in/488dt3h</span>
                     <button style={{ background: '#111827', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 700 }}>Copy</button>
                   </div>
                 </div>
@@ -894,7 +906,6 @@ export default function Home() {
                         <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>rajesh@okhdfcbank</span>
                       </div>
                     </div>
-                    <span style={{ background: '#ECFDF5', color: '#059669', fontSize: 10, fontWeight: 700, padding: '4px 8px', borderRadius: 6 }}>✓ Verified</span>
                   </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32 }}>
@@ -902,9 +913,8 @@ export default function Home() {
                       <QrImage vpa="demo" businessName="demo" amount={null} />
                     </div>
                     <div style={{ fontSize: 24, fontWeight: 800 }}>₹500.00</div>
-                    <div style={{ background: '#EEF2FF', color: '#6775E8', fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 100, marginTop: 8 }}>UPAY-7X2K</div>
                   </div>
-                  
+
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
                     {['G Pay', 'PhonePe', 'Paytm', 'BHIM'].map(app => (
                       <div key={app} style={{ flex: 1, background: '#111827', color: '#fff', fontSize: 10, fontWeight: 700, padding: '8px 0', textAlign: 'center', borderRadius: 8 }}>{app}</div>
@@ -939,6 +949,35 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Recent Links (client-side only, from localStorage) */}
+      {recentLinks.length > 0 && (
+        <section style={{ maxWidth: 760, margin: '0 auto', padding: '0 24px 64px' }}>
+          <h3 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 20, fontWeight: 800, letterSpacing: '-.02em', color: 'var(--ink-1)', marginBottom: 16 }}>
+            Recent links
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {recentLinks.map(link => (
+              <a
+                key={link.token}
+                href={`/${link.token}`}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '14px 18px', background: '#fff',
+                  border: '1px solid rgba(0,0,0,0.07)', borderRadius: 12,
+                  textDecoration: 'none', color: 'inherit',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+                }}
+              >
+                <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink-1)' }}>{link.businessName}</span>
+                <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>
+                  {link.amount && link.amount > 0 ? `₹${link.amount.toFixed(2)}` : 'Open amount'}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Bottom CTA */}
       <section className="cta-section">
@@ -991,7 +1030,7 @@ export default function Home() {
               <span className="nav-logo-text">UPIDirectPay</span>
             </div>
             <p style={{ color: 'var(--ink-3)', fontSize: 14 }}>
-              © {new Date().getFullYear()} UPIDirectPay. Zero commission payment collection.
+              © {new Date().getFullYear()} UPIDirectPay. Zero commission payment collection. Not affiliated with NPCI/UPI.
             </p>
           </div>
         </div>
